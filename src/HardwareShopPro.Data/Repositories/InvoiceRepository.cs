@@ -178,4 +178,21 @@ public class InvoiceRepository : IInvoiceRepository
 
         return $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}";
     }
+
+    public async Task<IEnumerable<ProductSalesReport>> GetTopSellingProductsAsync(DateTime from, DateTime to, int count = 5)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<ProductSalesReport>(@"
+            SELECT p.Id as ProductId, p.Name as ProductName,
+                   SUM(ii.Quantity) as TotalQuantity,
+                   SUM(ii.Price * ii.Quantity - ii.Discount) as TotalRevenue
+            FROM InvoiceItems ii
+            JOIN Invoices i ON ii.InvoiceId = i.Id
+            JOIN Products p ON ii.ProductId = p.Id
+            WHERE i.Date BETWEEN @From AND @To
+            GROUP BY p.Id, p.Name
+            ORDER BY TotalRevenue DESC
+            LIMIT @Count",
+            new { From = from.ToString("yyyy-MM-dd"), To = to.ToString("yyyy-MM-dd 23:59:59"), Count = count });
+    }
 }

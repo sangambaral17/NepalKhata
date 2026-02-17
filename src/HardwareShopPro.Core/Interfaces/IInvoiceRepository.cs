@@ -16,4 +16,5 @@ public interface IInvoiceRepository
     Task<bool> DeleteAsync(int id);
     Task<DashboardStats> GetDashboardStatsAsync();
     Task<string> GenerateNextInvoiceNumberAsync();
+    Task<IEnumerable<ProductSalesReport>> GetTopSellingProductsAsync(DateTime from, DateTime to, int count = 5);
 }

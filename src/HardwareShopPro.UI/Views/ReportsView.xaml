@@ -1,0 +1,189 @@
+<UserControl x:Class="HardwareShopPro.UI.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Filters -->
+            <RowDefinition Height="Auto"/> <!-- Cards -->
+            <RowDefinition Height="300"/>  <!-- Charts -->
+            <RowDefinition Height="*"/>    <!-- Table -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Filters Bar -->
+        <Border Grid.Row="0" Style="{StaticResource PremiumCard}" Padding="16" Margin="0,0,0,16">
+            <WrapPanel>
+                <TextBlock Text="Date Range:" VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                
+                <DatePicker SelectedDate="{Binding StartDate}" Width="120" Margin="0,0,8,0"
+                            materialDesign:HintAssist.Hint="From"/>
+                <DatePicker SelectedDate="{Binding EndDate}" Width="120" Margin="0,0,24,0"
+                            materialDesign:HintAssist.Hint="To"/>
+                
+                <Button Content="Generate Report" Command="{Binding LoadReportCommand}" 
+                        Style="{StaticResource PrimaryButton}" Margin="0,0,24,0"/>
+
+                <Button Content="Today" Command="{Binding SetQuickRangeCommand}" CommandParameter="Today" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
+                <Button Content="This Week" Command="{Binding SetQuickRangeCommand}" CommandParameter="Week" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
+                <Button Content="This Month" Command="{Binding SetQuickRangeCommand}" CommandParameter="Month" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 2. Summary Cards -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,16">
+            <!-- Total Revenue -->
+            <Border Style="{StaticResource StatCard}" Margin="0,0,16,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="24" Background="#1A3B5BDB" Margin="0,0,16,0">
+                        <materialDesign:PackIcon Kind="CurrencyUsd" Width="24" Height="24" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Total Revenue" Style="{StaticResource LabelText}"/>
+                        <TextBlock Text="{Binding TotalRevenue, StringFormat=Rs. {0:N2}}" Style="{StaticResource H2Text}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Total Invoices -->
+            <Border Style="{StaticResource StatCard}" Margin="0,0,16,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="24" Background="#1A51CF66" Margin="0,0,16,0">
+                        <materialDesign:PackIcon Kind="ReceiptText" Width="24" Height="24" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Total Invoices" Style="{StaticResource LabelText}"/>
+                        <TextBlock Text="{Binding TotalInvoices}" Style="{StaticResource H2Text}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Avg Order Value -->
+            <Border Style="{StaticResource StatCard}" Margin="0,0,16,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="24" Background="#1AFF922B" Margin="0,0,16,0">
+                        <materialDesign:PackIcon Kind="ChartLine" Width="24" Height="24" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Avg Order Value" Style="{StaticResource LabelText}"/>
+                        <TextBlock Text="{Binding AverageOrderValue, StringFormat=Rs. {0:N2}}" Style="{StaticResource H2Text}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Items Sold (Placeholder/Estimate) -->
+            <Border Style="{StaticResource StatCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="24" Background="#1ACC5DE8" Margin="0,0,16,0">
+                        <materialDesign:PackIcon Kind="PackageVariant" Width="24" Height="24" Foreground="{DynamicResource PurpleBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Top Items Sold" Style="{StaticResource LabelText}"/>
+                        <TextBlock Text="{Binding TotalItemsSold, StringFormat={}{0}+}" Style="{StaticResource H2Text}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </UniformGrid>
+
+        <!-- 3. Charts -->
+        <Grid Grid.Row="2" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/> <!-- Revenue Chart (60%) -->
+                <ColumnDefinition Width="2*"/> <!-- Product Pie (40%) -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Revenue Trend -->
+            <Border Grid.Column="0" Style="{StaticResource PremiumCard}" Padding="16" Margin="0,0,16,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Revenue Trend" Style="{StaticResource H3Text}" Margin="0,0,0,8"/>
+                    <lvc:CartesianChart Grid.Row="1" Series="{Binding RevenueSeries}" XAxes="{Binding XAxes}"/>
+                </Grid>
+            </Border>
+
+            <!-- Top Products -->
+            <Border Grid.Column="1" Style="{StaticResource PremiumCard}" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Top 5 Products (Revenue)" Style="{StaticResource H3Text}" Margin="0,0,0,8"/>
+                    <lvc:PieChart Grid.Row="1" Series="{Binding TopProductsSeries}" InitialRotation="-90"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 4. Invoice Table -->
+        <Border Grid.Row="3" Style="{StaticResource PremiumCard}" Padding="0">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Margin="16">
+                    <TextBlock Text="Invoice History" Style="{StaticResource H3Text}"/>
+                </Grid>
+                
+                <DataGrid ItemsSource="{Binding Invoices}" AutoGenerateColumns="False"
+                          CanUserAddRows="False" IsReadOnly="True"
+                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None"
+                          RowHeight="44" HeadersVisibility="Column">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                            <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                            <Setter Property="Height" Value="36"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="INVOICE #" Binding="{Binding InvoiceNumber}" Width="120" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="DATE" Binding="{Binding Date, StringFormat=dd MMM yyyy}" Width="120"/>
+                        <DataGridTextColumn Header="CUSTOMER" Binding="{Binding CustomerName}" Width="*"/>
+                        <DataGridTextColumn Header="AMOUNT" Binding="{Binding TotalAmount, StringFormat=N2}" Width="100" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="PAYMENT" Binding="{Binding PaymentMode}" Width="100"/>
+                        
+                        <DataGridTemplateColumn Header="STATUS" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Center"
+                                            Background="{DynamicResource SuccessBrush}" Opacity="0.8"> 
+                                        <!-- Simplified status binding: assuming all Paid for now as per VM logic -->
+                                        <TextBlock Text="{Binding PaymentStatus}" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        
+                        <DataGridTemplateColumn Header="ACTIONS" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="View Details" Height="24" Width="24">
+                                        <materialDesign:PackIcon Kind="Eye" Width="16" Height="16"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

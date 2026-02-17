@@ -81,6 +81,13 @@ public partial class App : Application
         services.AddTransient<ProductListViewModel>();
         services.AddTransient<SupplierListViewModel>();
         services.AddTransient<CustomerListViewModel>();
+        
+        // Sprint 2 ViewModels
+        services.AddTransient<BillingViewModel>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<ReportsViewModel>();
+        services.AddTransient<AIAssistantViewModel>();
+        services.AddTransient<HelpViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
 

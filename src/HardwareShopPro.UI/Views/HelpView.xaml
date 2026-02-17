@@ -1,0 +1,88 @@
+<UserControl x:Class="HardwareShopPro.UI.Views.HelpView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels">
+
+    <Grid Margin="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="300"/> <!-- Sidebar -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Column="0">
+            <StackPanel>
+                <TextBlock Text="Help &amp; Documentation" Style="{StaticResource H1Text}" Margin="0,0,0,24"/>
+                
+                <!-- Quick Start -->
+                <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="Quick Start Guide" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
+                            • <Bold>Dashboard:</Bold> View key metrics and low stock alerts.
+                        </TextBlock>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
+                            • <Bold>Billing (F2):</Bold> Search products, add to cart, and generate invoices with F9.
+                        </TextBlock>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
+                            • <Bold>Products:</Bold> Manage inventory, set prices, and track stock.
+                        </TextBlock>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
+                            • <Bold>Reports:</Bold> Analyze sales performance and top selling items.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Shortcuts -->
+                <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="Keyboard Shortcuts" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
+                        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ACTION" Binding="{Binding Action}" Width="*"/>
+                                <DataGridTextColumn Header="KEY" Binding="{Binding Key}" Width="100" FontWeight="Bold"/>
+                            </DataGrid.Columns>
+                            <!-- Hardcoded for now or bind to VM collection -->
+                            <x:Array Type="{x:Type vm:ShortcutItem}">
+                                <vm:ShortcutItem Action="New Invoice" Key="F2"/>
+                                <vm:ShortcutItem Action="Generate Invoice" Key="F9"/>
+                                <vm:ShortcutItem Action="Clear Cart" Key="Esc"/>
+                                <vm:ShortcutItem Action="Search Products" Key="Ctrl+F"/>
+                                <vm:ShortcutItem Action="Save" Key="Ctrl+S"/>
+                            </x:Array>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- FAQs -->
+                <Border Style="{StaticResource PremiumCard}" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Frequently Asked Questions" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
+                        <Expander Header="How do I change the tax rate?" Margin="0,0,0,8">
+                            <TextBlock Text="Go to Settings > Business Profile to update GST/Tax settings." Margin="16,8"/>
+                        </Expander>
+                        <Expander Header="How to backup data?" Margin="0,0,0,8">
+                            <TextBlock Text="Go to Settings > Backup &amp; Data and click 'Backup Now'." Margin="16,8"/>
+                        </Expander>
+                        <Expander Header="Can I use without internet?">
+                            <TextBlock Text="Yes, the application works fully offline. AI features require internet." Margin="16,8"/>
+                        </Expander>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Sidebar -->
+        <StackPanel Grid.Column="2">
+            <Border Style="{StaticResource PremiumCard}" Padding="16" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Need Support?" Style="{StaticResource H3Text}" Margin="0,0,0,12"/>
+                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="Contact Developer" Command="{Binding OpenLinkCommand}" CommandParameter="mailto:support@hardwareshop.pro" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="View Online Docs" Command="{Binding OpenLinkCommand}" CommandParameter="https://docs.hardwareshop.pro" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

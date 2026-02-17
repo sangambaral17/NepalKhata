@@ -1,0 +1,99 @@
+<UserControl x:Class="HardwareShopPro.UI.Views.AIAssistantView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Chat Area -->
+            <RowDefinition Height="Auto"/> <!-- Input -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="AutoAwesome" Width="24" Height="24" Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,12,0"/>
+                    <TextBlock Text="AI Assistant" Style="{StaticResource H2Text}"/>
+                    <Border CornerRadius="10" Background="{DynamicResource SuccessBrush}" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Online" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                    <Border CornerRadius="10" Background="{DynamicResource DangerBrush}" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding IsConnected, Converter={StaticResource InvertedBooleanToVisibilityConverter}}"> <!-- Assuming inverted converter exists or just rely on fallback -->
+                        <TextBlock Text="Offline" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                
+                <Button Grid.Column="1" Style="{StaticResource MaterialDesignIconButton}" Command="{Binding ClearConversationCommand}" ToolTip="Clear Chat">
+                    <materialDesign:PackIcon Kind="DeleteSweep"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Chat Area -->
+        <ScrollViewer Grid.Row="1" Padding="16">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,8">
+                            <!-- User Message -->
+                            <Border HorizontalAlignment="Right" Background="{DynamicResource PrimaryBrush}" CornerRadius="16,16,4,16" Padding="12" MaxWidth="600"
+                                    Visibility="{Binding IsUser, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="{Binding Content}" Foreground="White" TextWrapping="Wrap"/>
+                            </Border>
+                            
+                            <!-- Assistant Message -->
+                            <StackPanel HorizontalAlignment="Left" MaxWidth="600"
+                                        Visibility="{Binding IsAssistant, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <materialDesign:PackIcon Kind="Robot" Foreground="{DynamicResource PrimaryBrush}" Width="16" Height="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="HardwareShopPro AI" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <Border Background="{DynamicResource Surface2Brush}" CornerRadius="4,16,16,16" Padding="12">
+                                    <TextBlock Text="{Binding Content}" Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Suggestions (Overlay or part of chat flow) -->
+        <!-- Ideally these appear when messages are empty. For simplicity skipping explicit overlay logic here 
+             but calling them from VM logic adding to messages list or a separate control would be better. 
+             Will just rely on VM to push initial suggestions if needed or plain text. -->
+
+        <!-- Input Area -->
+        <Border Grid.Row="2" Padding="16" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Text="{Binding CurrentInput, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         materialDesign:HintAssist.Hint="Ask about sales, inventory, or products..."
+                         VerticalAlignment="Center" Margin="0,0,12,0"
+                         AcceptsReturn="True" MaxHeight="100">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SendMessageCommand}"/> <!-- Note: Might need Ctrl+Enter for multiline -->
+                    </TextBox.InputBindings>
+                </TextBox>
+                
+                <Button Grid.Column="1" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                        Command="{Binding SendMessageCommand}" Height="40" Width="40">
+                    <materialDesign:PackIcon Kind="Send" Width="20" Height="20"/>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

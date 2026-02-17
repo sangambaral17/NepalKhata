@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HardwareShopPro.Core.Models;
 using HardwareShopPro.Core.Services;
 using HardwareShopPro.UI.Services;
@@ -38,6 +39,13 @@ public partial class MainViewModel : ViewModelBase
             CurrentView = vm;
             _authService.RecordActivity();
         };
+
+        // Listen for theme changes from Settings
+        WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) =>
+        {
+            IsDarkTheme = m.IsDarkTheme;
+            ApplyTheme();
+        });
     }
 
     public override async Task LoadAsync()
@@ -65,6 +73,23 @@ public partial class MainViewModel : ViewModelBase
                 break;
             case "Customers":
                 await _navigation.NavigateToAsync<CustomerListViewModel>();
+                break;
+            case "Billing":
+                CurrentViewTitle = "Billing / POS";
+                await _navigation.NavigateToAsync<BillingViewModel>();
+                break;
+            case "Reports":
+                await _navigation.NavigateToAsync<ReportsViewModel>();
+                break;
+            case "Settings":
+                await _navigation.NavigateToAsync<SettingsViewModel>();
+                break;
+            case "AIAssistant":
+                CurrentViewTitle = "AI Assistant";
+                await _navigation.NavigateToAsync<AIAssistantViewModel>();
+                break;
+            case "Help":
+                await _navigation.NavigateToAsync<HelpViewModel>();
                 break;
             default:
                 Logger.Warning("Unknown navigation target: {Destination}", destination);
