@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="HardwareShopPro — Login"
-        Height="500" Width="420"
+        Title="ShopPro — Login"
+        Height="600" Width="900"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         WindowStyle="None"
@@ -11,87 +11,215 @@
         Background="Transparent"
         MouseDown="Window_MouseDown">
 
-    <Border CornerRadius="16" Background="{DynamicResource MaterialDesign.Brush.Background}"
-            BorderBrush="{DynamicResource MaterialDesign.Brush.Primary}" BorderThickness="1">
-        <Grid Margin="30">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <Border CornerRadius="16" ClipToBounds="True"
+            Background="{DynamicResource SurfaceBrush}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="32" ShadowDepth="0" Color="#000000" Opacity="0.15"/>
+        </Border.Effect>
 
-            <!-- Close Button -->
-            <Button Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Style="{StaticResource MaterialDesignIconButton}"
-                    Click="CloseButton_Click" Margin="0,-10,-10,0">
-                <materialDesign:PackIcon Kind="Close" />
-            </Button>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Logo -->
-            <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,10,0,30">
-                <materialDesign:PackIcon Kind="Devices" Width="64" Height="64"
-                    Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                    HorizontalAlignment="Center"/>
-                <TextBlock Text="HardwareShopPro" FontSize="24" FontWeight="Bold"
-                           HorizontalAlignment="Center" Margin="0,10,0,0"
-                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"/>
-                <TextBlock Text="Hardware Shop Management System"
-                           FontSize="12" Opacity="0.6"
-                           HorizontalAlignment="Center" Margin="0,4,0,0"/>
-            </StackPanel>
+            <!-- ═══ LEFT PANEL — Brand ═══ -->
+            <Border Grid.Column="0" CornerRadius="16,0,0,16"
+                    Background="{DynamicResource LoginPanelGradient}">
+                <Grid>
+                    <!-- Centered Content -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40">
+                        <!-- Logo Icon -->
+                        <Border Width="64" Height="64" CornerRadius="16"
+                                Background="#33FFFFFF" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Devices" Width="36" Height="36"
+                                                     Foreground="White"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
 
-            <!-- Username -->
-            <TextBox Grid.Row="2"
-                     materialDesign:HintAssist.Hint="Username"
-                     materialDesign:HintAssist.IsFloating="True"
-                     materialDesign:TextFieldAssist.HasLeadingIcon="True"
-                     materialDesign:TextFieldAssist.LeadingIcon="Account"
-                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0,0,0,16"
-                     FontSize="14"/>
+                        <!-- App Name -->
+                        <TextBlock Text="ShopPro" Foreground="White"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Margin="0,20,0,0"/>
 
-            <!-- Password -->
-            <PasswordBox Grid.Row="3" x:Name="PasswordBox"
-                         materialDesign:HintAssist.Hint="Password"
-                         materialDesign:HintAssist.IsFloating="True"
-                         materialDesign:TextFieldAssist.HasLeadingIcon="True"
-                         materialDesign:TextFieldAssist.LeadingIcon="Lock"
-                         Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
-                         Margin="0,0,0,16"
-                         FontSize="14"
-                         KeyDown="PasswordBox_KeyDown"/>
+                        <!-- Subtitle -->
+                        <TextBlock Text="Hardware Management System"
+                                   Foreground="#B3FFFFFF"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                    </StackPanel>
 
-            <!-- Error Message -->
-            <TextBlock Grid.Row="4" Text="{Binding LoginError}"
-                       Foreground="{DynamicResource MaterialDesign.Brush.ValidationError}"
-                       FontSize="12" TextWrapping="Wrap"
-                       Visibility="{Binding LoginError, Converter={StaticResource NullableToVisibilityConverter}}"
-                       Margin="0,0,0,16"/>
+                    <!-- Feature Pills at Bottom -->
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                Orientation="Horizontal" Margin="20,0,20,32">
+                        <Border Style="{StaticResource FeaturePill}" Margin="0,0,8,0">
+                            <TextBlock Text="✦ AI Powered" Foreground="White"
+                                       FontFamily="{StaticResource PrimaryFont}" FontSize="12"/>
+                        </Border>
+                        <Border Style="{StaticResource FeaturePill}" Margin="0,0,8,0">
+                            <TextBlock Text="✦ Offline First" Foreground="White"
+                                       FontFamily="{StaticResource PrimaryFont}" FontSize="12"/>
+                        </Border>
+                        <Border Style="{StaticResource FeaturePill}">
+                            <TextBlock Text="✦ GST Ready" Foreground="White"
+                                       FontFamily="{StaticResource PrimaryFont}" FontSize="12"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <!-- Login Button -->
-            <Button Grid.Row="5" Content="LOGIN" FontSize="14" Height="44"
-                    Style="{StaticResource MaterialDesignRaisedButton}"
-                    Command="{Binding LoginCommand}"
-                    IsEnabled="{Binding IsLoggingIn, Converter={StaticResource InvertBooleanConverter}}"
-                    Click="LoginButton_Click"
-                    HorizontalAlignment="Stretch" Margin="0,0,0,12"/>
+            <!-- ═══ RIGHT PANEL — Login Form ═══ -->
+            <Grid Grid.Column="1" Background="{DynamicResource SurfaceBrush}">
+                <!-- Close Button -->
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Style="{StaticResource PremiumIconButton}"
+                        Click="CloseButton_Click" Margin="0,12,12,0"
+                        Width="32" Height="32">
+                    <materialDesign:PackIcon Kind="Close" Width="18" Height="18"/>
+                </Button>
 
-            <!-- Loading -->
-            <ProgressBar Grid.Row="6"
-                         IsIndeterminate="True"
-                         Visibility="{Binding IsLoggingIn, Converter={StaticResource BooleanToVisibilityConverter}}"
-                         Margin="0,8"/>
+                <!-- Form Content -->
+                <StackPanel VerticalAlignment="Center" Margin="48">
+                    <!-- Greeting -->
+                    <TextBlock FontFamily="{StaticResource PrimaryFont}"
+                               FontSize="26" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}">
+                        <Run Text="Welcome back"/>
+                        <Run Text=" 👋"/>
+                    </TextBlock>
+                    <TextBlock Text="Sign in to your account"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               FontSize="14"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Margin="0,4,0,0"/>
 
-            <!-- Footer -->
-            <TextBlock Grid.Row="7" Text="Default: admin / admin123"
-                       FontSize="11" Opacity="0.4"
-                       HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <!-- Spacer -->
+                    <Border Height="32"/>
+
+                    <!-- Username Label -->
+                    <TextBlock Text="USERNAME" Style="{StaticResource LabelText}"
+                               Margin="0,0,0,6"/>
+
+                    <!-- Username Field -->
+                    <Border Background="{DynamicResource Surface2Brush}"
+                            CornerRadius="{StaticResource InputRadius}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" Height="48" Margin="0,0,0,16">
+                        <Grid Margin="16,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="Account" Width="20" Height="20"
+                                                     Foreground="{DynamicResource TextSecondaryBrush}"
+                                                     VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="{StaticResource PrimaryFont}"
+                                     FontSize="14"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                     CaretBrush="{DynamicResource PrimaryBrush}"
+                                     VerticalAlignment="Center"
+                                     BorderThickness="0" Background="Transparent"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Password Label -->
+                    <TextBlock Text="PASSWORD" Style="{StaticResource LabelText}"
+                               Margin="0,0,0,6"/>
+
+                    <!-- Password Field -->
+                    <Border Background="{DynamicResource Surface2Brush}"
+                            CornerRadius="{StaticResource InputRadius}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" Height="48" Margin="0,0,0,8">
+                        <Grid Margin="16,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="Lock" Width="20" Height="20"
+                                                     Foreground="{DynamicResource TextSecondaryBrush}"
+                                                     VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <PasswordBox x:Name="PasswordBox" Grid.Column="1"
+                                         FontFamily="{StaticResource PrimaryFont}"
+                                         FontSize="14"
+                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                         CaretBrush="{DynamicResource PrimaryBrush}"
+                                         VerticalAlignment="Center"
+                                         BorderThickness="0" Background="Transparent"
+                                         KeyDown="PasswordBox_KeyDown"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Forgot PIN -->
+                    <TextBlock Text="Forgot PIN?"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               FontSize="12"
+                               Foreground="{DynamicResource PrimaryBrush}"
+                               HorizontalAlignment="Right" Cursor="Hand"
+                               Margin="0,0,0,24"/>
+
+                    <!-- Error Message -->
+                    <TextBlock Text="{Binding LoginError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               FontSize="12" TextWrapping="Wrap"
+                               Visibility="{Binding LoginError, Converter={StaticResource NullableToVisibilityConverter}}"
+                               Margin="0,0,0,12"/>
+
+                    <!-- Login Button -->
+                    <Button Style="{StaticResource PrimaryButton}"
+                            Height="48" HorizontalAlignment="Stretch"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding IsLoggingIn, Converter={StaticResource InvertBooleanConverter}}"
+                            Click="LoginButton_Click">
+                        <Grid>
+                            <!-- Normal text -->
+                            <TextBlock Text="Sign In" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="White" HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoggingIn}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <!-- Loading spinner -->
+                            <ProgressBar IsIndeterminate="True" Width="24" Height="24"
+                                         Foreground="White">
+                                <ProgressBar.Style>
+                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource MaterialDesignCircularProgressBar}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoggingIn}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ProgressBar.Style>
+                            </ProgressBar>
+                        </Grid>
+                    </Button>
+
+                    <!-- Footer -->
+                    <TextBlock HorizontalAlignment="Center" Margin="0,32,0,0"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextSecondaryBrush}">
+                        <Run Text="v1.0.0"/>
+                        <Run Text="  •  "/>
+                        <Run Text="ShopPro"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </Window>

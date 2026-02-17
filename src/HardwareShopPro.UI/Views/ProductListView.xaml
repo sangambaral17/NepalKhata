@@ -10,7 +10,7 @@
         </Grid.RowDefinitions>
 
         <!-- ═══ Toolbar ═══ -->
-        <materialDesign:Card Grid.Row="0" Padding="16" Margin="0,0,0,12" UniformCornerRadius="12">
+        <Border Grid.Row="0" Style="{StaticResource PremiumCard}" Margin="0,0,0,16" Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -28,12 +28,10 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBox Grid.Column="0"
-                             materialDesign:HintAssist.Hint="Search products (name, brand, SKU, category)..."
-                             materialDesign:TextFieldAssist.HasLeadingIcon="True"
-                             materialDesign:TextFieldAssist.LeadingIcon="Magnify"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Style="{StaticResource PremiumSearchBox}"
+                             Tag="Search products (name, brand, SKU, category)..."
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="13" Height="40" Margin="0,0,8,0">
+                             Margin="0,0,8,0">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
                         </TextBox.InputBindings>
@@ -42,13 +40,13 @@
                     <ToggleButton Grid.Column="1" ToolTip="AI Smart Search"
                                   IsChecked="{Binding IsAISearchEnabled}"
                                   Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}"
-                                  Margin="0,0,4,0">
-                        <materialDesign:PackIcon Kind="Robot" Width="20" Height="20"/>
+                                  Margin="0,0,4,0" Width="36" Height="36">
+                        <materialDesign:PackIcon Kind="Robot" Width="18" Height="18"/>
                     </ToggleButton>
 
                     <Button Grid.Column="2" Command="{Binding SearchCommand}"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            Height="40" Content="Search"/>
+                            Style="{StaticResource PrimaryButton}"
+                            Height="40" Content="Search" Padding="16,0"/>
                 </Grid>
 
                 <!-- Category Filter -->
@@ -57,194 +55,258 @@
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Categories}"
                           SelectedItem="{Binding SelectedCategory}"
-                          FontSize="13" Height="40">
-                    <ComboBox.InputBindings>
-                        <KeyBinding Key="Enter" Command="{Binding FilterByCategoryCommand}"/>
-                    </ComboBox.InputBindings>
-                </ComboBox>
+                          FontSize="13" Height="40"/>
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
-                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                    <Button Style="{StaticResource PrimaryButton}"
                             Command="{Binding OpenAddDialogCommand}"
                             ToolTip="Add Product (Ctrl+N)" Height="40" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
-                            <TextBlock Text="Add" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Width="18" Height="18"/>
+                            <TextBlock Text="Add" Margin="6,0,0,0" VerticalAlignment="Center" Foreground="White"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    <Button Style="{StaticResource SecondaryButton}"
                             Command="{Binding OpenEditDialogCommand}"
-                            ToolTip="Edit Selected" Height="40" Margin="0,0,4,0">
-                        <materialDesign:PackIcon Kind="Pencil"/>
+                            ToolTip="Edit Selected" Height="40" Padding="10,0" Margin="0,0,4,0">
+                        <materialDesign:PackIcon Kind="Pencil" Width="18" Height="18"/>
                     </Button>
-                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    <Button Style="{StaticResource DangerButton}"
                             Command="{Binding DeleteProductCommand}"
-                            Foreground="IndianRed"
-                            ToolTip="Delete Selected" Height="40" Margin="0,0,4,0">
-                        <materialDesign:PackIcon Kind="Delete"/>
+                            ToolTip="Delete Selected" Height="40" Padding="10,0" Margin="0,0,4,0">
+                        <materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/>
                     </Button>
-                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    <Button Style="{StaticResource PremiumIconButton}"
                             Command="{Binding ClearFiltersCommand}"
-                            ToolTip="Clear Filters" Height="40">
-                        <materialDesign:PackIcon Kind="FilterOff"/>
+                            ToolTip="Clear Filters" Width="40" Height="40">
+                        <materialDesign:PackIcon Kind="FilterOff" Width="18" Height="18"/>
                     </Button>
                 </StackPanel>
             </Grid>
-        </materialDesign:Card>
+        </Border>
 
         <!-- AI Status -->
         <TextBlock Grid.Row="0" Text="{Binding AiSearchStatus}"
-                   FontSize="11" Margin="20,56,0,0" Opacity="0.7"
+                   FontSize="11" Margin="20,60,0,0"
+                   FontFamily="{StaticResource PrimaryFont}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    Visibility="{Binding AiSearchStatus, Converter={StaticResource NullableToVisibilityConverter}}"/>
 
         <!-- ═══ Data Grid ═══ -->
-        <materialDesign:Card Grid.Row="1" UniformCornerRadius="12" Padding="4">
+        <Border Grid.Row="1" Style="{StaticResource PremiumCard}" Padding="4">
             <DataGrid ItemsSource="{Binding Products}"
                       SelectedItem="{Binding SelectedProduct}"
                       AutoGenerateColumns="False" IsReadOnly="True"
                       CanUserAddRows="False" CanUserDeleteRows="False"
                       SelectionMode="Single"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      GridLinesVisibility="None"
+                      RowHeight="52"
+                      FontFamily="{StaticResource PrimaryFont}"
+                      Foreground="{DynamicResource TextPrimaryBrush}"
                       materialDesign:DataGridAssist.CellPadding="14,8"
                       materialDesign:DataGridAssist.ColumnHeaderPadding="14,8"
                       HeadersVisibility="Column"
                       VerticalScrollBarVisibility="Auto"
                       MouseDoubleClick="DataGrid_MouseDoubleClick">
+
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                        <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                        <Setter Property="FontSize" Value="11"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Height" Value="40"/>
+                        <Setter Property="Padding" Value="14,0"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource PrimaryBrush08}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="150"/>
-                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120"/>
-                    <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="120"/>
-                    <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="130"/>
-                    <DataGridTextColumn Header="Buy Price" Width="100">
+                    <DataGridTextColumn Header="NAME" Binding="{Binding Name}" Width="*" MinWidth="150">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="Medium"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="120"/>
+                    <DataGridTextColumn Header="BRAND" Binding="{Binding Brand}" Width="120"/>
+                    <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="130">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="{StaticResource MonospaceFont}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="BUY PRICE" Width="100">
                         <DataGridTextColumn.Binding>
                             <Binding Path="PurchasePrice" StringFormat="Rs. {0:N0}"/>
                         </DataGridTextColumn.Binding>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Sell Price" Width="100">
+                    <DataGridTextColumn Header="SELL PRICE" Width="100">
                         <DataGridTextColumn.Binding>
                             <Binding Path="SellingPrice" StringFormat="Rs. {0:N0}"/>
                         </DataGridTextColumn.Binding>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="70"/>
-                    <DataGridTextColumn Header="Margin" Width="80">
+                    <DataGridTextColumn Header="STOCK" Binding="{Binding Stock}" Width="70"/>
+                    <DataGridTextColumn Header="MARGIN" Width="80">
                         <DataGridTextColumn.Binding>
                             <Binding Path="ProfitMargin" StringFormat="{}{0}%"/>
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="150"/>
+                    <DataGridTextColumn Header="SUPPLIER" Binding="{Binding SupplierName}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
-        </materialDesign:Card>
+        </Border>
 
         <!-- ═══ Add/Edit Dialog ═══ -->
-        <materialDesign:Card Grid.Row="0" Grid.RowSpan="2"
-                             Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
-                             Panel.ZIndex="10"
-                             HorizontalAlignment="Center" VerticalAlignment="Center"
-                             Width="500" Padding="24" UniformCornerRadius="16">
-            <StackPanel>
-                <TextBlock FontSize="20" FontWeight="Bold" Margin="0,0,0,16">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="Add Product"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                                    <Setter Property="Text" Value="Edit Product"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="10" Background="#40000000">
+            <Border Style="{StaticResource PremiumCard}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="500" Padding="24">
+                <StackPanel>
+                    <TextBlock FontSize="20" FontWeight="Bold" Margin="0,0,0,16"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               Foreground="{DynamicResource TextPrimaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Add Product"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                        <Setter Property="Text" Value="Edit Product"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
-                <TextBox materialDesign:HintAssist.Hint="Product Name *"
-                         materialDesign:HintAssist.IsFloating="True"
-                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                         Text="{Binding EditingProduct.Name, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,12"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Category"
+                    <TextBox materialDesign:HintAssist.Hint="Product Name *"
                              materialDesign:HintAssist.IsFloating="True"
                              Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.Category}" Margin="0,0,6,12"/>
-                    <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Brand"
+                             Text="{Binding EditingProduct.Name, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,12"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Category"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.Category}" Margin="0,0,6,12"/>
+                        <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Brand"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.Brand}" Margin="6,0,0,12"/>
+                    </Grid>
+
+                    <TextBox materialDesign:HintAssist.Hint="SKU"
                              materialDesign:HintAssist.IsFloating="True"
                              Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.Brand}" Margin="6,0,0,12"/>
-                </Grid>
+                             Text="{Binding EditingProduct.SKU}" Margin="0,0,0,12"/>
 
-                <TextBox materialDesign:HintAssist.Hint="SKU"
-                         materialDesign:HintAssist.IsFloating="True"
-                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                         Text="{Binding EditingProduct.SKU}" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Purchase Price"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.PurchasePrice}" Margin="0,0,6,12"/>
+                        <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Selling Price"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.SellingPrice}" Margin="6,0,0,12"/>
+                    </Grid>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Purchase Price"
-                             materialDesign:HintAssist.IsFloating="True"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.PurchasePrice}" Margin="0,0,6,12"/>
-                    <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Selling Price"
-                             materialDesign:HintAssist.IsFloating="True"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.SellingPrice}" Margin="6,0,0,12"/>
-                </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Stock"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.Stock}" Margin="0,0,6,12"/>
+                        <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Min Stock Level"
+                                 materialDesign:HintAssist.IsFloating="True"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding EditingProduct.MinStockLevel}" Margin="6,0,0,12"/>
+                    </Grid>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Stock"
-                             materialDesign:HintAssist.IsFloating="True"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.Stock}" Margin="0,0,6,12"/>
-                    <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Min Stock Level"
-                             materialDesign:HintAssist.IsFloating="True"
-                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                             Text="{Binding EditingProduct.MinStockLevel}" Margin="6,0,0,12"/>
-                </Grid>
+                    <ComboBox materialDesign:HintAssist.Hint="Supplier"
+                              materialDesign:HintAssist.IsFloating="True"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                              ItemsSource="{Binding Suppliers}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              SelectedValue="{Binding EditingProduct.SupplierId}"
+                              Margin="0,0,0,16"/>
 
-                <ComboBox materialDesign:HintAssist.Hint="Supplier"
-                          materialDesign:HintAssist.IsFloating="True"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                          ItemsSource="{Binding Suppliers}"
-                          SelectedValuePath="Id"
-                          DisplayMemberPath="Name"
-                          SelectedValue="{Binding EditingProduct.SupplierId}"
-                          Margin="0,0,0,12"/>
+                    <!-- Error -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               Margin="0,0,0,12" TextWrapping="Wrap"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibilityConverter}}"/>
 
-                <!-- Error -->
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource MaterialDesign.Brush.ValidationError}"
-                           Margin="0,0,0,12" TextWrapping="Wrap"
-                           Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibilityConverter}}"/>
-
-                <!-- Buttons -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel" Margin="0,0,8,0" Height="36"
-                            Style="{StaticResource MaterialDesignOutlinedButton}"
-                            Command="{Binding CancelDialogCommand}"/>
-                    <Button Content="Save" Height="36"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            Command="{Binding SaveProductCommand}"/>
+                    <!-- Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Margin="0,0,8,0" Height="40"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding CancelDialogCommand}"/>
+                        <Button Content="Save" Height="40"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding SaveProductCommand}"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </materialDesign:Card>
+            </Border>
+        </Border>
 
         <!-- Loading Overlay -->
         <Grid Grid.Row="0" Grid.RowSpan="2"
               Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
               Background="#80000000" Panel.ZIndex="20">
             <ProgressBar IsIndeterminate="True" Style="{StaticResource MaterialDesignCircularProgressBar}"
-                         Width="60" Height="60"/>
+                         Width="48" Height="48" Foreground="{DynamicResource PrimaryBrush}"/>
         </Grid>
     </Grid>
 </UserControl>

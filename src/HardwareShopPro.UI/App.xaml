@@ -8,8 +8,13 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="DeepPurple" SecondaryColor="Cyan" />
+                <!-- MaterialDesign base (provides fallback control templates) -->
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Indigo" SecondaryColor="LightGreen" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+
+                <!-- ShopPro Premium Design System -->
+                <ResourceDictionary Source="Styles/DesignSystem.xaml" />
+                <ResourceDictionary Source="Styles/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!-- DataTemplate mapping: ViewModel → View -->
@@ -26,12 +31,8 @@
                 <views:CustomerListView />
             </DataTemplate>
 
-            <!-- Global Styles -->
-            <Style x:Key="StatCard" TargetType="materialDesign:Card">
-                <Setter Property="Padding" Value="20" />
-                <Setter Property="Margin" Value="8" />
-                <Setter Property="UniformCornerRadius" Value="12" />
-            </Style>
+            <!-- Converters from MDT that views rely on -->
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>

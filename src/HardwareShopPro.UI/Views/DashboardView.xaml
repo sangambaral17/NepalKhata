@@ -3,116 +3,239 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
         <StackPanel>
-            <!-- Stat Cards Row -->
-            <UniformGrid Rows="1" Columns="4" Margin="0,0,0,16">
-                <!-- Total Products -->
-                <materialDesign:Card Style="{StaticResource StatCard}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Package" Width="28" Height="28"
-                                Foreground="{DynamicResource MaterialDesign.Brush.Primary}"/>
-                            <TextBlock Text="Total Products" FontSize="14" Opacity="0.7"
-                                       Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TotalProducts}" FontSize="36" FontWeight="Bold" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </materialDesign:Card>
 
-                <!-- Low Stock -->
-                <materialDesign:Card Style="{StaticResource StatCard}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AlertCircle" Width="28" Height="28" Foreground="Orange"/>
-                            <TextBlock Text="Low Stock" FontSize="14" Opacity="0.7"
-                                       Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding LowStockCount}" FontSize="36" FontWeight="Bold"
-                                   Foreground="Orange" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </materialDesign:Card>
+            <!-- ═══ STAT CARDS ROW ═══ -->
+            <UniformGrid Rows="1" Columns="4" Margin="0,0,0,24">
 
-                <!-- Today's Sales -->
-                <materialDesign:Card Style="{StaticResource StatCard}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="CartCheck" Width="28" Height="28" Foreground="LimeGreen"/>
-                            <TextBlock Text="Today's Sales" FontSize="14" Opacity="0.7"
-                                       Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TodaySalesCount}" FontSize="36" FontWeight="Bold"
-                                   Foreground="LimeGreen" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </materialDesign:Card>
+                <!-- Total Products — Indigo -->
+                <Border Style="{StaticResource StatCard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Today's Revenue -->
-                <materialDesign:Card Style="{StaticResource StatCard}">
-                    <StackPanel>
+                        <!-- Icon + Label -->
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="CurrencyUsd" Width="28" Height="28" Foreground="CornflowerBlue"/>
-                            <TextBlock Text="Today's Revenue" FontSize="14" Opacity="0.7"
-                                       Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <Border Width="44" Height="44" CornerRadius="22"
+                                    Background="{DynamicResource PrimaryBrush10}">
+                                <materialDesign:PackIcon Kind="Package" Width="22" Height="22"
+                                                         Foreground="{DynamicResource PrimaryBrush}"
+                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
-                        <TextBlock Text="{Binding TodayRevenue, StringFormat='Rs. {0:N0}'}" FontSize="36" FontWeight="Bold"
-                                   Foreground="CornflowerBlue" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </materialDesign:Card>
+
+                        <!-- Value + Label -->
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding TotalProducts}" FontSize="28" FontWeight="Bold"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Total Products" FontSize="13"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Today's Sales — Green -->
+                <Border Style="{StaticResource StatCard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="44" Height="44" CornerRadius="22"
+                                    Background="{DynamicResource AccentBrush10}">
+                                <materialDesign:PackIcon Kind="CartCheck" Width="22" Height="22"
+                                                         Foreground="{DynamicResource AccentBrush}"
+                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding TodaySalesCount}" FontSize="28" FontWeight="Bold"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Today's Sales" FontSize="13"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Low Stock — Orange/Warning -->
+                <Border Style="{StaticResource StatCard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="44" Height="44" CornerRadius="22"
+                                    Background="{DynamicResource WarningBrush10}">
+                                <materialDesign:PackIcon Kind="AlertCircle" Width="22" Height="22"
+                                                         Foreground="{DynamicResource WarningBrush}"
+                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding LowStockCount}" FontSize="28" FontWeight="Bold"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text="Low Stock Items" FontSize="13"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Revenue — Purple -->
+                <Border Style="{StaticResource StatCard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="44" Height="44" CornerRadius="22"
+                                    Background="{DynamicResource PurpleBrush10}">
+                                <materialDesign:PackIcon Kind="CurrencyUsd" Width="22" Height="22"
+                                                         Foreground="{DynamicResource PurpleBrush}"
+                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding TodayRevenue, StringFormat='Rs. {0:N0}'}" FontSize="28" FontWeight="Bold"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Today's Revenue" FontSize="13"
+                                       FontFamily="{StaticResource PrimaryFont}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </UniformGrid>
 
-            <!-- Second Row: Monthly Revenue + Customers + Suppliers -->
-            <UniformGrid Rows="1" Columns="3" Margin="0,0,0,16">
-                <materialDesign:Card Style="{StaticResource StatCard}">
+            <!-- ═══ SECOND ROW: Monthly Revenue + Customers + Suppliers ═══ -->
+            <UniformGrid Rows="1" Columns="3" Margin="0,0,0,24">
+                <Border Style="{StaticResource StatCard}" Height="Auto" Padding="20">
                     <StackPanel>
-                        <TextBlock Text="Monthly Revenue" FontSize="13" Opacity="0.7"/>
+                        <TextBlock Text="Monthly Revenue" FontSize="13"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding MonthlyRevenue, StringFormat='Rs. {0:N0}'}"
-                                   FontSize="28" FontWeight="Bold" Margin="0,4,0,0"
-                                   Foreground="{DynamicResource MaterialDesign.Brush.Secondary}"/>
+                                   FontSize="24" FontWeight="Bold" Margin="0,4,0,0"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource PrimaryBrush}"/>
                     </StackPanel>
-                </materialDesign:Card>
-                <materialDesign:Card Style="{StaticResource StatCard}">
+                </Border>
+                <Border Style="{StaticResource StatCard}" Height="Auto" Padding="20">
                     <StackPanel>
-                        <TextBlock Text="Total Customers" FontSize="13" Opacity="0.7"/>
-                        <TextBlock Text="{Binding TotalCustomers}" FontSize="28" FontWeight="Bold" Margin="0,4,0,0"/>
+                        <TextBlock Text="Total Customers" FontSize="13"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{Binding TotalCustomers}"
+                                   FontSize="24" FontWeight="Bold" Margin="0,4,0,0"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </StackPanel>
-                </materialDesign:Card>
-                <materialDesign:Card Style="{StaticResource StatCard}">
+                </Border>
+                <Border Style="{StaticResource StatCard}" Height="Auto" Padding="20">
                     <StackPanel>
-                        <TextBlock Text="Total Suppliers" FontSize="13" Opacity="0.7"/>
-                        <TextBlock Text="{Binding TotalSuppliers}" FontSize="28" FontWeight="Bold" Margin="0,4,0,0"/>
+                        <TextBlock Text="Total Suppliers" FontSize="13"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{Binding TotalSuppliers}"
+                                   FontSize="24" FontWeight="Bold" Margin="0,4,0,0"
+                                   FontFamily="{StaticResource PrimaryFont}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </StackPanel>
-                </materialDesign:Card>
+                </Border>
             </UniformGrid>
 
-            <!-- Low Stock Alerts -->
-            <materialDesign:Card Padding="20" Margin="8" UniformCornerRadius="12">
+            <!-- ═══ LOW STOCK ALERTS ═══ -->
+            <Border Style="{StaticResource PremiumCard}" Padding="24">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <materialDesign:PackIcon Kind="Alert" Width="24" Height="24" Foreground="Orange" VerticalAlignment="Center"/>
-                        <TextBlock Text="Low Stock Alerts" FontSize="16" FontWeight="SemiBold"
-                                   Margin="8,0,0,0" VerticalAlignment="Center"/>
-                        <Button Content="Refresh" Margin="20,0,0,0"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                Command="{Binding RefreshCommand}" Height="30" FontSize="11"/>
-                    </StackPanel>
+                    <!-- Header -->
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="36" Height="36" CornerRadius="18"
+                                    Background="{DynamicResource WarningBrush10}">
+                                <materialDesign:PackIcon Kind="Alert" Width="18" Height="18"
+                                                         Foreground="{DynamicResource WarningBrush}"
+                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Low Stock Alerts" Style="{StaticResource H2Text}"
+                                       Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Content="Refresh" HorizontalAlignment="Right"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding RefreshCommand}"
+                                Height="32" FontSize="12" Padding="12,0"/>
+                    </Grid>
 
+                    <!-- Data Grid -->
                     <DataGrid ItemsSource="{Binding LowStockProducts}"
                               AutoGenerateColumns="False" IsReadOnly="True"
                               CanUserAddRows="False" CanUserDeleteRows="False"
-                              MaxHeight="250"
-                              materialDesign:DataGridAssist.CellPadding="12,6"
+                              MaxHeight="280"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              GridLinesVisibility="None"
+                              RowHeight="52"
+                              FontFamily="{StaticResource PrimaryFont}"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              materialDesign:DataGridAssist.CellPadding="14,8"
                               HeadersVisibility="Column">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Height" Value="40"/>
+                                <Setter Property="Padding" Value="14,0"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120"/>
-                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="80"/>
-                            <DataGridTextColumn Header="Min Level" Binding="{Binding MinStockLevel}" Width="80"/>
-                            <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="130"/>
+                            <DataGridTextColumn Header="PRODUCT" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="120"/>
+                            <DataGridTextColumn Header="STOCK" Binding="{Binding Stock}" Width="80"/>
+                            <DataGridTextColumn Header="MIN LEVEL" Binding="{Binding MinStockLevel}" Width="80"/>
+                            <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontFamily" Value="{StaticResource MonospaceFont}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 
+                    <!-- Empty State -->
                     <TextBlock Text="No low stock items — inventory is healthy! ✅"
-                               Margin="0,12" FontSize="13" Opacity="0.6">
+                               Margin="0,12" FontSize="13"
+                               FontFamily="{StaticResource PrimaryFont}"
+                               Foreground="{DynamicResource TextSecondaryBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -125,7 +248,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                 </StackPanel>
-            </materialDesign:Card>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

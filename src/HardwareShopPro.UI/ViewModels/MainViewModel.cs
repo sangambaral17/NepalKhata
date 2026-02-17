@@ -1,3 +1,5 @@
+using System.Windows;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HardwareShopPro.Core.Models;
@@ -20,7 +22,7 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private ViewModelBase? _currentView;
     [ObservableProperty] private string _currentViewTitle = "Dashboard";
     [ObservableProperty] private User? _currentUser;
-    [ObservableProperty] private bool _isDarkTheme = true;
+    [ObservableProperty] private bool _isDarkTheme = false; // Default to light
     [ObservableProperty] private string _selectedMenuItem = "Dashboard";
 
     public event Action? LogoutRequested;
@@ -55,6 +57,7 @@ public partial class MainViewModel : ViewModelBase
                 await _navigation.NavigateToAsync<DashboardViewModel>();
                 break;
             case "Products":
+                CurrentViewTitle = "Inventory";
                 await _navigation.NavigateToAsync<ProductListViewModel>();
                 break;
             case "Suppliers":
@@ -80,11 +83,34 @@ public partial class MainViewModel : ViewModelBase
     {
         var paletteHelper = new PaletteHelper();
         var theme = paletteHelper.GetTheme();
-        
-        // In MDT 5.x, SetBaseTheme is an extension method in MaterialDesignThemes.Wpf namespace
         theme.SetBaseTheme(IsDarkTheme ? BaseTheme.Dark : BaseTheme.Light);
-        
         paletteHelper.SetTheme(theme);
+
+        // Apply custom ShopPro theme brushes
+        var resources = Application.Current.Resources;
+
+        if (IsDarkTheme)
+        {
+            resources["BackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F1117"));
+            resources["SurfaceBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1A1D27"));
+            resources["Surface2Brush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#22263A"));
+            resources["BorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2C3050"));
+            resources["TextPrimaryBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F1F3F5"));
+            resources["TextSecondaryBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#909BBD"));
+            resources["SidebarBgBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1A1D27"));
+            resources["SidebarActiveBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2A3159"));
+        }
+        else
+        {
+            resources["BackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F8F9FA"));
+            resources["SurfaceBrush"] = new SolidColorBrush(Colors.White);
+            resources["Surface2Brush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F1F3F5"));
+            resources["BorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E9ECEF"));
+            resources["TextPrimaryBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#212529"));
+            resources["TextSecondaryBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#868E96"));
+            resources["SidebarBgBrush"] = new SolidColorBrush(Colors.White);
+            resources["SidebarActiveBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EEF2FF"));
+        }
     }
 
     [RelayCommand]
