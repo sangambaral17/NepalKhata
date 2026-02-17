@@ -1,0 +1,14 @@
+﻿  HardwareShopPro.Core -> d:\NepalKhata\src\HardwareShopPro.Core\bin\Debug\net8.0\HardwareShopPro.Core.dll
+  HardwareShopPro.Data -> d:\NepalKhata\src\HardwareShopPro.Data\bin\Debug\net8.0\HardwareShopPro.Data.dll
+  HardwareShopPro.AI -> d:\NepalKhata\src\HardwareShopPro.AI\bin\Debug\net8.0\HardwareShopPro.AI.dll
+d:\NepalKhata\src\HardwareShopPro.UI\ViewModels\MainViewModel.cs(82,15): error CS1061: 'Theme' does not contain a definition for 'SetBaseTheme' and no accessible extension method 'SetBaseTheme' accepting a first argument of type 'Theme' could be found (are you missing a using directive or an assembly reference?) [d:\NepalKhata\src\HardwareShopPro.UI\HardwareShopPro.UI_ut5rmvut_wpftmp.csproj]
+d:\NepalKhata\src\HardwareShopPro.UI\App.xaml.cs(90,30): error CS0246: The type or namespace name 'DatabaseSeeder' could not be found (are you missing a using directive or an assembly reference?) [d:\NepalKhata\src\HardwareShopPro.UI\HardwareShopPro.UI_ut5rmvut_wpftmp.csproj]
+
+Build FAILED.
+
+d:\NepalKhata\src\HardwareShopPro.UI\ViewModels\MainViewModel.cs(82,15): error CS1061: 'Theme' does not contain a definition for 'SetBaseTheme' and no accessible extension method 'SetBaseTheme' accepting a first argument of type 'Theme' could be found (are you missing a using directive or an assembly reference?) [d:\NepalKhata\src\HardwareShopPro.UI\HardwareShopPro.UI_ut5rmvut_wpftmp.csproj]
+d:\NepalKhata\src\HardwareShopPro.UI\App.xaml.cs(90,30): error CS0246: The type or namespace name 'DatabaseSeeder' could not be found (are you missing a using directive or an assembly reference?) [d:\NepalKhata\src\HardwareShopPro.UI\HardwareShopPro.UI_ut5rmvut_wpftmp.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:01.61
