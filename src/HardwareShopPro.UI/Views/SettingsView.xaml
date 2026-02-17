@@ -1,0 +1,285 @@
+<UserControl x:Class="HardwareShopPro.UI.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ LEFT PANEL: Navigation ═══ -->
+        <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+            <StackPanel Margin="0,24,0,0">
+                <TextBlock Text="Settings" Style="{StaticResource H2Text}" Margin="24,0,0,16"/>
+                
+                <ListBox x:Name="SettingsNavList" SelectedIndex="0" Padding="12">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                            <Setter Property="Height" Value="48"/>
+                            <Setter Property="Padding" Value="16,0"/>
+                            <Setter Property="Margin" Value="0,4"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Border" CornerRadius="8" Background="Transparent" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryLightBrush}" /> <!-- Specific color needed, using PrimaryLight but maybe too bright? Let's assume opacity -->
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountMultiple" Margin="0,0,12,0"/>
+                            <TextBlock Text="User Management"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Domain" Margin="0,0,12,0"/>
+                            <TextBlock Text="Business Profile"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Palette" Margin="0,0,12,0"/>
+                            <TextBlock Text="Appearance"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Robot" Margin="0,0,12,0"/>
+                            <TextBlock Text="AI Configuration"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="BackupRestore" Margin="0,0,12,0"/>
+                            <TextBlock Text="Backup &amp; Data"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Information" Margin="0,0,12,0"/>
+                            <TextBlock Text="About"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                </ListBox>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ RIGHT PANEL: Content ═══ -->
+        <Border Grid.Column="1" Padding="32">
+            <Grid>
+                <!-- 0: USER MANAGEMENT -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=0}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Margin="0,0,0,24">
+                        <TextBlock Text="User Management" Style="{StaticResource H2Text}"/>
+                        <Button Content="Add User" HorizontalAlignment="Right" Style="{StaticResource PrimaryButton}"
+                                Command="{Binding OpenAddUserDialogCommand}"/>
+                    </Grid>
+
+                    <Border Style="{StaticResource PremiumCard}" Padding="0">
+                        <DataGrid ItemsSource="{Binding Users}" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" IsReadOnly="True"
+                                  Background="Transparent" BorderThickness="0" GridLinesVisibility="None"
+                                  RowHeight="52" HeadersVisibility="All">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                    <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                                    <Setter Property="Height" Value="40"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="USERNAME" Binding="{Binding Username}" Width="*"/>
+                                <DataGridTextColumn Header="DISPLAY NAME" Binding="{Binding DisplayName}" Width="*"/>
+                                
+                                <DataGridTemplateColumn Header="ROLE" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Left"
+                                                    Background="{DynamicResource Surface2Brush}">
+                                                <TextBlock Text="{Binding Role}" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn Header="STATUS" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:PackIcon Kind="CheckCircle" Foreground="{DynamicResource AccentBrush}"
+                                                                     Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn Header="ACTIONS" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Toggle Active"
+                                                        Command="{Binding DataContext.ToggleUserActiveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <materialDesign:PackIcon Kind="Power"/>
+                                                </Button>
+                                                <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Delete"
+                                                        Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <materialDesign:PackIcon Kind="Delete" Foreground="{DynamicResource DangerBrush}"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    
+                    <!-- Add User Dialog -->
+                    <materialDesign:DialogHost IsOpen="{Binding IsAddUserDialogOpen}">
+                        <materialDesign:DialogHost.DialogContent>
+                            <Border Width="350" Padding="24" Background="{DynamicResource SurfaceBrush}" CornerRadius="16">
+                                <StackPanel>
+                                    <TextBlock Text="Add New User" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                    
+                                    <TextBox materialDesign:HintAssist.Hint="Username" Style="{StaticResource PremiumInput}" 
+                                             Text="{Binding NewUserName}" Margin="0,0,0,16"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Display Name" Style="{StaticResource PremiumInput}" 
+                                             Text="{Binding NewUserDisplayName}" Margin="0,0,0,16"/>
+                                    <PasswordBox materialDesign:HintAssist.Hint="Password" Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                                 Margin="0,0,0,16" materialDesign:PasswordBoxAssist.Password="{Binding NewUserPassword, Mode=OneWayToSource}"/>
+                                    
+                                    <ComboBox materialDesign:HintAssist.Hint="Role" Margin="0,0,0,24"
+                                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              SelectedValue="{Binding NewUserRole}">
+                                        <ComboBoxItem Content="Cashier"/>
+                                        <ComboBoxItem Content="Manager"/>
+                                        <ComboBoxItem Content="Admin"/>
+                                    </ComboBox>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
+                                                Command="{Binding CloseAddUserDialogCommand}"/>
+                                        <Button Grid.Column="1" Content="Save" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+                                                Command="{Binding AddUserCommand}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </materialDesign:DialogHost.DialogContent>
+                    </materialDesign:DialogHost>
+                </Grid>
+
+                <!-- 1: BUSINESS PROFILE -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=1}">
+                    <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                        <TextBlock Text="Business Profile" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
+                        
+                        <TextBox materialDesign:HintAssist.Hint="Store Name" Text="{Binding BusinessName}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        <TextBox materialDesign:HintAssist.Hint="Address" Text="{Binding BusinessAddress}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        <TextBox materialDesign:HintAssist.Hint="Phone" Text="{Binding BusinessPhone}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        <TextBox materialDesign:HintAssist.Hint="Email" Text="{Binding BusinessEmail}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        <TextBox materialDesign:HintAssist.Hint="GST/PAN Number" Text="{Binding GstNumber}" Style="{StaticResource PremiumInput}" Margin="0,0,0,24"/>
+                        
+                        <Button Content="Save Changes" Command="{Binding SaveBusinessProfileCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 2: APPEARANCE -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=2}">
+                    <StackPanel>
+                        <TextBlock Text="Appearance" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
+                        
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Theme" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsDarkTheme}"
+                                                  Command="{Binding ToggleThemeCommand}"/>
+                                    <TextBlock Text="Dark Mode" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource PremiumCard}" Padding="24">
+                            <StackPanel>
+                                <TextBlock Text="Accent Color" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                <!-- Swatches placeholder -->
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Indigo" IsChecked="True" Margin="0,0,16,0"/>
+                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Blue" Margin="0,0,16,0"/>
+                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Purple"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 3: AI CONFIG -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=3}">
+                    <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                        <TextBlock Text="AI Configuration" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
+                        
+                        <TextBox materialDesign:HintAssist.Hint="Claude API Key" Text="{Binding ClaudeApiKey}" 
+                                 Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        
+                        <CheckBox Content="Enable AI Features" IsChecked="{Binding IsAIEnabled}" Margin="0,0,0,24"/>
+                        
+                        <Button Content="Save Key" Command="{Binding SaveApiKeyCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 4: BACKUP -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=4}">
+                    <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                        <TextBlock Text="Backup &amp; Data" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
+                        
+                        <TextBlock Text="Backup Location" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding BackupPath}" Style="{StaticResource PremiumInput}" IsReadOnly="True" Margin="0,0,0,16"/>
+                        
+                        <TextBlock Text="{Binding LastBackupDate, StringFormat='Last Backup: {0:g}'}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
+
+                        <Button Content="Backup Now" Command="{Binding BackupNowCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 5: ABOUT -->
+                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=5}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="StorefrontOutline" Width="64" Height="64" Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="HardwareShopPro" Style="{StaticResource H1Text}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Version 1.0.0" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                        <TextBlock Text="Built with ♥ for Hardware Shops" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

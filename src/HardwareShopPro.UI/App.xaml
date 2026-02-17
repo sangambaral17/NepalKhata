@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels"
-             xmlns:views="clr-namespace:HardwareShopPro.UI.Views">
+             xmlns:views="clr-namespace:HardwareShopPro.UI.Views"
+             xmlns:converters="clr-namespace:HardwareShopPro.UI.Converters">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -31,8 +32,9 @@
                 <views:CustomerListView />
             </DataTemplate>
 
-            <!-- Converters from MDT that views rely on -->
+            <!-- Converters -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:IndexToVisibilityConverter x:Key="IndexToVisibilityConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>
