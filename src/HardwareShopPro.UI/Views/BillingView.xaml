@@ -1,0 +1,229 @@
+<UserControl x:Class="HardwareShopPro.UI.Views.BillingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:models="clr-namespace:HardwareShopPro.Core.Models;assembly=HardwareShopPro.Core"
+             xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels">
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding FocusSearchCommand}"/> <!-- Not implemented in VM yet but good practice -->
+        <KeyBinding Key="F9" Command="{Binding GenerateInvoiceCommand}"/>
+        <KeyBinding Key="Esc" Command="{Binding ClearCartCommand}"/>
+    </UserControl.InputBindings>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/> <!-- Left: Search & Cart (55%) -->
+            <ColumnDefinition Width="420"/> <!-- Right: Summary (Fixed width for stability) -->
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ LEFT PANEL: Product Search & Cart ═══ -->
+        <Grid Grid.Column="0" Margin="0,0,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Search -->
+                <RowDefinition Height="*"/>    <!-- Cart -->
+                <RowDefinition Height="Auto"/> <!-- Customer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Search Bar -->
+            <Border Grid.Row="0" Style="{StaticResource PremiumCard}" Margin="0,0,0,16" Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox Style="{StaticResource PremiumSearchBox}"
+                             Tag="Search by name, SKU, barcode (F2)..."
+                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchProductsCommand}" 
+                                        CommandParameter="{Binding SearchQuery}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    
+                    <!-- Live Results Popup (simplified as ListBox below search if results exist) -->
+                    <Popup IsOpen="{Binding SearchResults.Count, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           StaysOpen="False" PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=TextBox}}"
+                           Placement="Bottom">
+                        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="8" MaxHeight="300" Width="400" Effect="{DynamicResource CardShadow}">
+                            <ListBox ItemsSource="{Binding SearchResults}" DisplayMemberPath="Name">
+                                <!-- Enhanced Item Template needed later -->
+                            </ListBox>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+
+            <!-- 2. Cart Table -->
+            <Border Grid.Row="1" Style="{StaticResource PremiumCard}" Padding="4" Margin="0,0,0,16">
+                <DataGrid ItemsSource="{Binding CartItems}" AutoGenerateColumns="False"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None"
+                          RowHeight="52" HeadersVisibility="Column"
+                          FontFamily="{StaticResource PrimaryFont}">
+                    
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                            <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="Padding" Value="14,0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding ProductId}" Width="50"/>
+                        <DataGridTextColumn Header="PRODUCT" Binding="{Binding ProductName}" Width="*"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="100"/>
+                        
+                        <!-- Quantity Stepper -->
+                        <DataGridTemplateColumn Header="QTY" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}" Padding="4" 
+                                                Command="{Binding DataContext.DecrementQuantityCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <materialDesign:PackIcon Kind="Minus" Width="12" Height="12"/>
+                                        </Button>
+                                        <TextBlock Text="{Binding Quantity}" VerticalAlignment="Center" Margin="8,0" FontWeight="Bold"/>
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}" Padding="4"
+                                                Command="{Binding DataContext.IncrementQuantityCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <materialDesign:PackIcon Kind="Plus" Width="12" Height="12"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="PRICE" Binding="{Binding UnitPrice, StringFormat=N2}" Width="80"/>
+                        
+                        <!-- Discount Input -->
+                        <DataGridTemplateColumn Header="DISC %" Width="70">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Discount, UpdateSourceTrigger=LostFocus}" 
+                                             Style="{StaticResource MaterialDesignDataGridComboBox}" 
+                                             VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="TOTAL" Binding="{Binding LineTotal, StringFormat=N2}" Width="80" FontWeight="Bold"/>
+
+                        <!-- Remove Action -->
+                        <DataGridTemplateColumn Width="50">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" 
+                                            Command="{Binding DataContext.RemoveFromCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            ToolTip="Remove Item">
+                                        <materialDesign:PackIcon Kind="Delete" Foreground="{DynamicResource DangerBrush}"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- 3. Customer Section -->
+            <Border Grid.Row="2" Style="{StaticResource PremiumCard}" Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel>
+                        <TextBlock Text="Customer Details" Style="{StaticResource H3Text}" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Style="{StaticResource PremiumSearchBox}" 
+                                     materialDesign:HintAssist.Hint="Search customer or walk-in..."
+                                     Text="{Binding CustomerSearchQuery, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0"
+                                    Content="New Customer"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══ RIGHT PANEL: Order Summary ═══ -->
+        <Border Grid.Column="1" Style="{StaticResource PremiumCard}" Padding="24"  VerticalAlignment="Stretch">
+            <StackPanel>
+                <!-- Header -->
+                <TextBlock Text="Order Summary" Style="{StaticResource H2Text}"/>
+                <TextBlock Text="{Binding InvoiceNumber}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,24"/>
+
+                <!-- Payment Breakdown -->
+                <Grid Margin="0,0,0,12">
+                    <TextBlock Text="Subtotal"/>
+                    <TextBlock Text="{Binding SubTotal, StringFormat=Rs. {0:N2}}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                </Grid>
+                <Grid Margin="0,0,0,12">
+                    <TextBlock Text="Discount" Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="{Binding TotalDiscount, StringFormat=- Rs. {0:N2}}" HorizontalAlignment="Right" Foreground="{DynamicResource AccentBrush}"/>
+                </Grid>
+                <Grid Margin="0,0,0,24">
+                    <TextBlock Text="VAT/Tax (13%)"/>
+                    <TextBlock Text="{Binding TotalTax, StringFormat=Rs. {0:N2}}" HorizontalAlignment="Right"/>
+                </Grid>
+
+                <Separator Background="{DynamicResource BorderBrush}" Margin="0,0,0,24"/>
+
+                <Grid Margin="0,0,0,32">
+                    <TextBlock Text="Grand Total" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding GrandTotal, StringFormat=Rs. {0:N2}}" HorizontalAlignment="Right" 
+                               FontSize="22" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
+                </Grid>
+
+                <!-- Payment Mode -->
+                <TextBlock Text="Payment Mode" Style="{StaticResource LabelText}" Margin="0,0,0,8"/>
+                <ListBox SelectedIndex="0" Style="{StaticResource MaterialDesignToolToggleListBox}" Margin="0,0,0,24">
+                    <ListBoxItem Content="Cash"/>
+                    <ListBoxItem Content="Card"/>
+                    <ListBoxItem Content="UPI"/>
+                    <ListBoxItem Content="Credit"/>
+                </ListBox>
+
+                <!-- Cash Calculator -->
+                <StackPanel Visibility="{Binding PaymentMode, Converter={StaticResource BooleanToVisibilityConverter}}"> <!-- Simplified logic needed for visibility check on enum -->
+                    <TextBox materialDesign:HintAssist.Hint="Amount Received" 
+                             Text="{Binding AmountReceived, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}" Margin="0,0,0,16"/>
+                    <Grid Margin="0,0,0,24">
+                        <TextBlock Text="Change to Return" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ChangeAmount, StringFormat=Rs. {0:N2}}" 
+                                   HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Action Buttons -->
+                <Button Content="Generate Invoice (F9)" Command="{Binding GenerateInvoiceCommand}"
+                        Style="{StaticResource PrimaryButton}" Height="48" Margin="0,0,0,12"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Save Draft" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                    <Button Grid.Column="1" Content="Clear Cart (Esc)" Command="{Binding ClearCartCommand}" 
+                            Style="{StaticResource DangerButton}" Background="Transparent" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" Foreground="{DynamicResource DangerBrush}" Margin="6,0,0,0"/>
+                </Grid>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
