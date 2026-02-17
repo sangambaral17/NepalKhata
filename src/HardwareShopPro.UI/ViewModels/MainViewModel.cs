@@ -80,7 +80,10 @@ public partial class MainViewModel : ViewModelBase
     {
         var paletteHelper = new PaletteHelper();
         var theme = paletteHelper.GetTheme();
+        
+        // In MDT 5.x, SetBaseTheme is an extension method in MaterialDesignThemes.Wpf namespace
         theme.SetBaseTheme(IsDarkTheme ? BaseTheme.Dark : BaseTheme.Light);
+        
         paletteHelper.SetTheme(theme);
     }
 
