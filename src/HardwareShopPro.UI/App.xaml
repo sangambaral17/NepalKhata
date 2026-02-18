@@ -4,7 +4,8 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:HardwareShopPro.UI.ViewModels"
              xmlns:views="clr-namespace:HardwareShopPro.UI.Views"
-             xmlns:converters="clr-namespace:HardwareShopPro.UI.Converters">
+             xmlns:converters="clr-namespace:HardwareShopPro.UI.Converters"
+             DispatcherUnhandledException="OnDispatcherUnhandledException">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -51,6 +52,10 @@
             <!-- Converters -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:IndexToVisibilityConverter x:Key="IndexToVisibilityConverter"/>
+            <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <converters:InvertedBooleanToVisibilityConverter x:Key="InvertedBooleanToVisibilityConverter"/>
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>

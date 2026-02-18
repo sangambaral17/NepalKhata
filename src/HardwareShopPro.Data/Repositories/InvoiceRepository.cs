@@ -166,17 +166,21 @@ public class InvoiceRepository : IInvoiceRepository
     public async Task<string> GenerateNextInvoiceNumberAsync()
     {
         using var conn = _db.CreateConnection();
+        var today = DateTime.UtcNow.ToString("yyyyMMdd");
+        var prefix = $"INV-{today}-";
+        
         var lastNumber = await conn.ExecuteScalarAsync<string>(
-            "SELECT InvoiceNumber FROM Invoices ORDER BY Id DESC LIMIT 1");
+            "SELECT InvoiceNumber FROM Invoices WHERE InvoiceNumber LIKE @Prefix ORDER BY Id DESC LIMIT 1",
+            new { Prefix = prefix + "%" });
 
         if (string.IsNullOrEmpty(lastNumber))
-            return "INV-0001";
+            return $"{prefix}0001";
 
-        var numPart = lastNumber.Replace("INV-", "");
+        var numPart = lastNumber.Replace(prefix, "");
         if (int.TryParse(numPart, out var num))
-            return $"INV-{(num + 1):D4}";
+            return $"{prefix}{(num + 1):D4}";
 
-        return $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        return $"{prefix}0001";
     }
 
     public async Task<IEnumerable<ProductSalesReport>> GetTopSellingProductsAsync(DateTime from, DateTime to, int count = 5)

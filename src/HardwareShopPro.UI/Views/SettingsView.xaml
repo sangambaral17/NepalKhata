@@ -32,7 +32,7 @@
                                                 <Setter TargetName="Border" Property="Background" Value="{DynamicResource Surface2Brush}"/>
                                             </Trigger>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryLightBrush}" /> <!-- Specific color needed, using PrimaryLight but maybe too bright? Let's assume opacity -->
+                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryLightBrush}" />
                                                 <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
                                             </Trigger>
@@ -99,7 +99,7 @@
                                 Command="{Binding OpenAddUserDialogCommand}"/>
                     </Grid>
 
-                    <Border Style="{StaticResource PremiumCard}" Padding="0">
+                    <Border Grid.Row="1" Style="{StaticResource PremiumCard}" Padding="0">
                         <DataGrid ItemsSource="{Binding Users}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
                                   Background="Transparent" BorderThickness="0" GridLinesVisibility="None"
@@ -129,13 +129,27 @@
                                 <DataGridTemplateColumn Header="STATUS" Width="80">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <materialDesign:PackIcon Kind="CheckCircle" Foreground="{DynamicResource AccentBrush}"
-                                                                     Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="CheckCircle" Foreground="Green"
+                                                    Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                <materialDesign:PackIcon Kind="CloseCircle" Foreground="Red">
+                                                    <materialDesign:PackIcon.Style>
+                                                        <Style TargetType="materialDesign:PackIcon">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </materialDesign:PackIcon.Style>
+                                                </materialDesign:PackIcon>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <DataGridTemplateColumn Header="ACTIONS" Width="120">
+                                <DataGridTemplateColumn Header="ACTIONS" Width="160">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
@@ -143,6 +157,11 @@
                                                         Command="{Binding DataContext.ToggleUserActiveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}">
                                                     <materialDesign:PackIcon Kind="Power"/>
+                                                </Button>
+                                                <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Reset Password"
+                                                        Command="{Binding DataContext.OpenResetPasswordDialogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <materialDesign:PackIcon Kind="LockReset"/>
                                                 </Button>
                                                 <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Delete"
                                                         Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -158,26 +177,31 @@
                     </Border>
                     
                     <!-- Add User Dialog -->
-                    <materialDesign:DialogHost IsOpen="{Binding IsAddUserDialogOpen}">
+                    <materialDesign:DialogHost IsOpen="{Binding IsAddUserDialogOpen}" Grid.RowSpan="2">
                         <materialDesign:DialogHost.DialogContent>
-                            <Border Width="350" Padding="24" Background="{DynamicResource SurfaceBrush}" CornerRadius="16">
+                            <Border Width="380" Padding="24" Background="{DynamicResource SurfaceBrush}" CornerRadius="16">
                                 <StackPanel>
                                     <TextBlock Text="Add New User" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
                                     
-                                    <TextBox materialDesign:HintAssist.Hint="Username" Style="{StaticResource PremiumInput}" 
-                                             Text="{Binding NewUserName}" Margin="0,0,0,16"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Username *" Style="{StaticResource PremiumInput}" 
+                                             Text="{Binding NewUserName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
                                     <TextBox materialDesign:HintAssist.Hint="Display Name" Style="{StaticResource PremiumInput}" 
-                                             Text="{Binding NewUserDisplayName}" Margin="0,0,0,16"/>
-                                    <PasswordBox materialDesign:HintAssist.Hint="Password" Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
-                                                 Margin="0,0,0,16" materialDesign:PasswordBoxAssist.Password="{Binding NewUserPassword, Mode=OneWayToSource}"/>
+                                             Text="{Binding NewUserDisplayName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                    <PasswordBox materialDesign:HintAssist.Hint="Password *" Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                                 Margin="0,0,0,16"/>
                                     
-                                    <ComboBox materialDesign:HintAssist.Hint="Role" Margin="0,0,0,24"
+                                    <ComboBox materialDesign:HintAssist.Hint="Role" Margin="0,0,0,8"
                                               Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                              SelectedValue="{Binding NewUserRole}">
+                                              SelectedIndex="{Binding NewUserRoleIndex}">
                                         <ComboBoxItem Content="Cashier"/>
                                         <ComboBoxItem Content="Manager"/>
                                         <ComboBoxItem Content="Admin"/>
                                     </ComboBox>
+
+                                    <!-- Error message -->
+                                    <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" FontSize="12" Margin="0,0,0,16"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
 
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -193,91 +217,356 @@
                             </Border>
                         </materialDesign:DialogHost.DialogContent>
                     </materialDesign:DialogHost>
+
+                    <!-- Reset Password Dialog -->
+                    <materialDesign:DialogHost IsOpen="{Binding IsResetPasswordDialogOpen}" Grid.RowSpan="2">
+                        <materialDesign:DialogHost.DialogContent>
+                            <Border Width="350" Padding="24" Background="{DynamicResource SurfaceBrush}" CornerRadius="16">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource H3Text}" Margin="0,0,0,8">
+                                        <Run Text="Reset Password for "/>
+                                        <Run Text="{Binding ResetPasswordUser.Username, Mode=OneWay}" FontWeight="Bold"/>
+                                    </TextBlock>
+                                    
+                                    <PasswordBox materialDesign:HintAssist.Hint="New Password (min 6 chars)" 
+                                                 Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                                 Margin="0,0,0,16"/>
+
+                                    <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" FontSize="12" Margin="0,0,0,16"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
+                                                Command="{Binding CloseResetPasswordDialogCommand}"/>
+                                        <Button Grid.Column="1" Content="Reset" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+                                                Command="{Binding ResetPasswordCommand}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </materialDesign:DialogHost.DialogContent>
+                    </materialDesign:DialogHost>
                 </Grid>
 
                 <!-- 1: BUSINESS PROFILE -->
-                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=1}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=1}">
                     <StackPanel MaxWidth="600" HorizontalAlignment="Left">
                         <TextBlock Text="Business Profile" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
                         
-                        <TextBox materialDesign:HintAssist.Hint="Store Name" Text="{Binding BusinessName}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
-                        <TextBox materialDesign:HintAssist.Hint="Address" Text="{Binding BusinessAddress}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
-                        <TextBox materialDesign:HintAssist.Hint="Phone" Text="{Binding BusinessPhone}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
-                        <TextBox materialDesign:HintAssist.Hint="Email" Text="{Binding BusinessEmail}" Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
-                        <TextBox materialDesign:HintAssist.Hint="GST/PAN Number" Text="{Binding GstNumber}" Style="{StaticResource PremiumInput}" Margin="0,0,0,24"/>
-                        
-                        <Button Content="Save Changes" Command="{Binding SaveBusinessProfileCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                </Grid>
-
-                <!-- 2: APPEARANCE -->
-                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=2}">
-                    <StackPanel>
-                        <TextBlock Text="Appearance" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
-                        
+                        <!-- Logo Section -->
                         <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
                             <StackPanel>
-                                <TextBlock Text="Theme" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                <TextBlock Text="Business Logo" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsDarkTheme}"
-                                                  Command="{Binding ToggleThemeCommand}"/>
-                                    <TextBlock Text="Dark Mode" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                                    <Border Width="80" Height="80" CornerRadius="8" Background="{DynamicResource Surface2Brush}" 
+                                            Margin="0,0,16,0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                        <materialDesign:PackIcon Kind="StorefrontOutline" Width="40" Height="40" 
+                                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                  Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <Button Content="Upload Logo" Style="{StaticResource SecondaryButton}" 
+                                                Command="{Binding BrowseLogoCommand}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="PNG, JPG up to 1MB" FontSize="11" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
+                        <!-- Form Fields -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Store Information" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                <TextBox materialDesign:HintAssist.Hint="Store Name *" Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                                <TextBox materialDesign:HintAssist.Hint="Address" Text="{Binding BusinessAddress, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                                <TextBox materialDesign:HintAssist.Hint="Phone" Text="{Binding BusinessPhone, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                                <TextBox materialDesign:HintAssist.Hint="Email" Text="{Binding BusinessEmail, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                                <TextBox materialDesign:HintAssist.Hint="GST/PAN Number" Text="{Binding GstNumber, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                                
+                                <!-- Status message -->
+                                <TextBlock Text="{Binding BusinessProfileStatus}" FontSize="12" Margin="0,0,0,8"
+                                           Foreground="Red" TextWrapping="Wrap"/>
+                                
+                                <Button Content="Save Changes" Command="{Binding SaveBusinessProfileCommand}" 
+                                        Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 2: APPEARANCE -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=2}">
+                    <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+                        <TextBlock Text="Appearance" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
+                        
+                        <!-- Theme Toggle -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Dark Mode" Style="{StaticResource H3Text}"/>
+                                    <TextBlock Text="Switch between light and dark theme" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <ToggleButton Grid.Column="1" Style="{StaticResource MaterialDesignSwitchToggleButton}" 
+                                              IsChecked="{Binding IsDarkTheme}"
+                                              Command="{Binding ToggleThemeCommand}" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Accent Color -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Accent Color" Style="{StaticResource H3Text}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Choose your primary interface color" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- Indigo -->
+                                    <Button Width="40" Height="40" Margin="0,0,12,0" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="0"
+                                            ToolTip="Indigo">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#4F46E5" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <!-- Blue -->
+                                    <Button Width="40" Height="40" Margin="0,0,12,0" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="1"
+                                            ToolTip="Blue">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#2563EB" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <!-- Purple -->
+                                    <Button Width="40" Height="40" Margin="0,0,12,0" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="2"
+                                            ToolTip="Purple">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#7C3AED" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <!-- Teal -->
+                                    <Button Width="40" Height="40" Margin="0,0,12,0" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="3"
+                                            ToolTip="Teal">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#0D9488" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <!-- Rose -->
+                                    <Button Width="40" Height="40" Margin="0,0,12,0" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="4"
+                                            ToolTip="Rose">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#E11D48" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <!-- Amber -->
+                                    <Button Width="40" Height="40" Cursor="Hand"
+                                            Command="{Binding SetAccentColorCommand}" CommandParameter="5"
+                                            ToolTip="Amber">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Border CornerRadius="20" Background="#D97706" Width="40" Height="40"
+                                                        BorderBrush="White" BorderThickness="2"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Font Size -->
                         <Border Style="{StaticResource PremiumCard}" Padding="24">
                             <StackPanel>
-                                <TextBlock Text="Accent Color" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
-                                <!-- Swatches placeholder -->
+                                <TextBlock Text="Font Size" Style="{StaticResource H3Text}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Adjust the text size across the application" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Indigo" IsChecked="True" Margin="0,0,16,0"/>
-                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Blue" Margin="0,0,16,0"/>
-                                    <RadioButton GroupName="Accent" Style="{StaticResource MaterialDesignRadioRadioButton}" Content="Purple"/>
+                                    <Button Content="Small" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" MinWidth="80"
+                                            Command="{Binding SetFontSizeCommand}" CommandParameter="0.85"/>
+                                    <Button Content="Normal" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" MinWidth="80"
+                                            Command="{Binding SetFontSizeCommand}" CommandParameter="1.0"/>
+                                    <Button Content="Large" Style="{StaticResource SecondaryButton}" MinWidth="80"
+                                            Command="{Binding SetFontSizeCommand}" CommandParameter="1.15"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
-                </Grid>
+                </ScrollViewer>
 
                 <!-- 3: AI CONFIG -->
-                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=3}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=3}">
                     <StackPanel MaxWidth="600" HorizontalAlignment="Left">
                         <TextBlock Text="AI Configuration" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
                         
-                        <TextBox materialDesign:HintAssist.Hint="Claude API Key" Text="{Binding ClaudeApiKey}" 
-                                 Style="{StaticResource PremiumInput}" Margin="0,0,0,16"/>
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Claude API Key" Style="{StaticResource H3Text}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Required for AI-powered features. Your key is encrypted using Windows DPAPI." 
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" TextWrapping="Wrap"/>
+                                
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox materialDesign:HintAssist.Hint="sk-ant-api03-..." 
+                                             Text="{Binding ClaudeApiKey, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource PremiumInput}"/>
+                                    <Button Grid.Column="1" Style="{StaticResource MaterialDesignIconButton}" Margin="8,0,0,0"
+                                            Command="{Binding ToggleShowApiKeyCommand}" ToolTip="Show/Hide Key">
+                                        <materialDesign:PackIcon Kind="Eye"/>
+                                    </Button>
+                                </Grid>
+                                
+                                <CheckBox Content="Enable AI Features" IsChecked="{Binding IsAIEnabled}" Margin="0,0,0,16"/>
+                                
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Button Content="Save Key" Command="{Binding SaveApiKeyCommand}" 
+                                            Style="{StaticResource PrimaryButton}" Margin="0,0,12,0"/>
+                                    <Button Content="Test Connection" Command="{Binding TestAiConnectionCommand}" 
+                                            Style="{StaticResource SecondaryButton}" 
+                                            IsEnabled="{Binding IsTestingConnection, Converter={StaticResource InvertBooleanConverter}}"/>
+                                </StackPanel>
+                                
+                                <!-- Connection Status -->
+                                <Border CornerRadius="8" Padding="12" Background="{DynamicResource Surface2Brush}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="CheckCircle" Foreground="Green" Margin="0,0,8,0"
+                                                                  Visibility="{Binding IsAiConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <TextBlock Text="{Binding AiConnectionStatus}" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
                         
-                        <CheckBox Content="Enable AI Features" IsChecked="{Binding IsAIEnabled}" Margin="0,0,0,24"/>
-                        
-                        <Button Content="Save Key" Command="{Binding SaveApiKeyCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                        <!-- No API Key Notice -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Background="#FFF3E0" CornerRadius="12">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="AlertCircle" Foreground="#E65100" Width="24" Height="24" Margin="0,0,12,0"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="#E65100">
+                                    <Run FontWeight="SemiBold" Text="AI features require an API key."/>
+                                    <LineBreak/>
+                                    <Run Text="Get your key from console.anthropic.com"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Grid>
+                </ScrollViewer>
 
                 <!-- 4: BACKUP -->
-                <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=4}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=4}">
                     <StackPanel MaxWidth="600" HorizontalAlignment="Left">
                         <TextBlock Text="Backup &amp; Data" Style="{StaticResource H2Text}" Margin="0,0,0,24"/>
                         
-                        <TextBlock Text="Backup Location" Style="{StaticResource LabelText}"/>
-                        <TextBox Text="{Binding BackupPath}" Style="{StaticResource PremiumInput}" IsReadOnly="True" Margin="0,0,0,16"/>
+                        <!-- Backup Section -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Database Backup" Style="{StaticResource H3Text}" Margin="0,0,0,16"/>
+                                
+                                <TextBlock Text="Backup Location" Style="{StaticResource LabelText}" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding BackupPath}" Style="{StaticResource PremiumInput}" IsReadOnly="True" Margin="0,0,0,16"/>
+                                
+                                <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8" FontSize="13">
+                                    <Run Text="Last Backup: "/>
+                                    <Run Text="{Binding LastBackupDate, StringFormat={}{0:g}, FallbackValue=Never}"/>
+                                </TextBlock>
+                                
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Button Content="Backup Now" Command="{Binding BackupNowCommand}" 
+                                            Style="{StaticResource PrimaryButton}" Margin="0,0,12,0"/>
+                                    <Button Content="Restore from Backup" Command="{Binding RestoreBackupCommand}" 
+                                            Style="{StaticResource SecondaryButton}"/>
+                                </StackPanel>
+                                
+                                <TextBlock Text="{Binding BackupStatus}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            </StackPanel>
+                        </Border>
                         
-                        <TextBlock Text="{Binding LastBackupDate, StringFormat='Last Backup: {0:g}'}" 
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
-
-                        <Button Content="Backup Now" Command="{Binding BackupNowCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"/>
+                        <!-- Auto Backup -->
+                        <Border Style="{StaticResource PremiumCard}" Padding="24">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Auto Backup" Style="{StaticResource H3Text}"/>
+                                    <TextBlock Text="Automatically create a backup every 24 hours" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <ToggleButton Grid.Column="1" Style="{StaticResource MaterialDesignSwitchToggleButton}" 
+                                              IsChecked="{Binding AutoBackupEnabled}"
+                                              Command="{Binding ToggleAutoBackupCommand}" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
                     </StackPanel>
-                </Grid>
+                </ScrollViewer>
 
                 <!-- 5: ABOUT -->
                 <Grid Visibility="{Binding SelectedIndex, ElementName=SettingsNavList, Converter={StaticResource IndexToVisibilityConverter}, ConverterParameter=5}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <materialDesign:PackIcon Kind="StorefrontOutline" Width="64" Height="64" Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
-                        <TextBlock Text="HardwareShopPro" Style="{StaticResource H1Text}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Version 1.0.0" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,24"/>
-                        <TextBlock Text="Built with ♥ for Hardware Shops" HorizontalAlignment="Center"/>
+                        <materialDesign:PackIcon Kind="StorefrontOutline" Width="64" Height="64" 
+                                                  Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="NepalKhata" Style="{StaticResource H1Text}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="ShopProNepal — Retail Management Software" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        <TextBlock Text="Version 2.0.0 — Sprint 2" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                        <TextBlock Text="Built with ♥ for Hardware Shops in Nepal" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                        
+                        <Border Style="{StaticResource PremiumCard}" Padding="24" MaxWidth="400">
+                            <StackPanel>
+                                <TextBlock Text="Technology Stack" Style="{StaticResource H3Text}" Margin="0,0,0,12"/>
+                                <TextBlock Text="• .NET 8.0 + WPF" Margin="0,0,0,4"/>
+                                <TextBlock Text="• Material Design in XAML" Margin="0,0,0,4"/>
+                                <TextBlock Text="• SQLite + Dapper" Margin="0,0,0,4"/>
+                                <TextBlock Text="• PdfSharpCore for PDF" Margin="0,0,0,4"/>
+                                <TextBlock Text="• Claude AI Integration" Margin="0,0,0,4"/>
+                                <TextBlock Text="• LiveCharts for Reports"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Grid>
+
+                <!-- ═══ Toast Notification ═══ -->
+                <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,16"
+                        CornerRadius="8" Padding="16,10" Background="#323232"
+                        Visibility="{Binding IsToastVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="{Binding ToastMessage}" Foreground="White" FontSize="13"/>
+                </Border>
 
             </Grid>
         </Border>

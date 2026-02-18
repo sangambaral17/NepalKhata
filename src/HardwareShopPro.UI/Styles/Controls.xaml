@@ -445,4 +445,7 @@
         <Setter Property="Background" Value="Transparent"/>
     </Style>
 
+    <!-- ─── PREMIUM INPUT (alias for PremiumTextInput) ───────────── -->
+    <Style x:Key="PremiumInput" TargetType="TextBox" BasedOn="{StaticResource PremiumTextInput}"/>
+
 </ResourceDictionary>

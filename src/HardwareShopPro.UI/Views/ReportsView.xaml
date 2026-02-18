@@ -28,7 +28,23 @@
 
                 <Button Content="Today" Command="{Binding SetQuickRangeCommand}" CommandParameter="Today" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
                 <Button Content="This Week" Command="{Binding SetQuickRangeCommand}" CommandParameter="Week" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
-                <Button Content="This Month" Command="{Binding SetQuickRangeCommand}" CommandParameter="Month" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,8,0" Padding="12,4"/>
+                <Button Content="This Month" Command="{Binding SetQuickRangeCommand}" CommandParameter="Month" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,24,0" Padding="12,4"/>
+
+                <!-- Export Buttons -->
+                <Button Command="{Binding ExportPdfCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" Padding="12,6"
+                        IsEnabled="{Binding IsExporting, Converter={StaticResource InvertBooleanConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FilePdfBox" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Export PDF" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding ExportExcelCommand}" Style="{StaticResource SecondaryButton}" Padding="12,6"
+                        IsEnabled="{Binding IsExporting, Converter={StaticResource InvertBooleanConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="MicrosoftExcel" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Export Excel" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </WrapPanel>
         </Border>
 
@@ -46,7 +62,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Total Revenue" Style="{StaticResource LabelText}"/>
-                        <TextBlock Text="{Binding TotalRevenue, StringFormat=Rs. {0:N2}}" Style="{StaticResource H2Text}"/>
+                        <TextBlock Text="{Binding TotalRevenue, StringFormat=NPR {0:N2}}" Style="{StaticResource H2Text}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -80,7 +96,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Avg Order Value" Style="{StaticResource LabelText}"/>
-                        <TextBlock Text="{Binding AverageOrderValue, StringFormat=Rs. {0:N2}}" Style="{StaticResource H2Text}"/>
+                        <TextBlock Text="{Binding AverageOrderValue, StringFormat=NPR {0:N2}}" Style="{StaticResource H2Text}"/>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -8,79 +8,193 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="16"/>
-            <ColumnDefinition Width="300"/> <!-- Sidebar -->
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <!-- Main Content -->
-        <ScrollViewer Grid.Column="0">
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <TextBlock Text="Help &amp; Documentation" Style="{StaticResource H1Text}" Margin="0,0,0,24"/>
-                
-                <!-- Quick Start -->
+
+                <!-- Getting Started -->
                 <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,24">
                     <StackPanel>
-                        <TextBlock Text="Quick Start Guide" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
-                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
-                            • <Bold>Dashboard:</Bold> View key metrics and low stock alerts.
-                        </TextBlock>
-                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
-                            • <Bold>Billing (F2):</Bold> Search products, add to cart, and generate invoices with F9.
-                        </TextBlock>
-                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
-                            • <Bold>Products:</Bold> Manage inventory, set prices, and track stock.
-                        </TextBlock>
-                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
-                            • <Bold>Reports:</Bold> Analyze sales performance and top selling items.
-                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="RocketLaunchOutline" Width="28" Height="28" 
+                                                      Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,12,0"/>
+                            <TextBlock Text="Getting Started" Style="{StaticResource H2Text}"/>
+                        </StackPanel>
+
+                        <Expander Margin="0,0,0,8">
+                            <Expander.Header>
+                                <TextBlock Text="1. Dashboard Overview" FontWeight="SemiBold"/>
+                            </Expander.Header>
+                            <TextBlock TextWrapping="Wrap" Margin="16,8" Foreground="{DynamicResource TextSecondaryBrush}">
+                                The Dashboard is your home screen showing key business metrics — today's sales, monthly revenue, low stock alerts, and recent transactions. Click any widget to dive deeper into details.
+                            </TextBlock>
+                        </Expander>
+
+                        <Expander Margin="0,0,0,8">
+                            <Expander.Header>
+                                <TextBlock Text="2. Setting Up Your Store" FontWeight="SemiBold"/>
+                            </Expander.Header>
+                            <TextBlock TextWrapping="Wrap" Margin="16,8" Foreground="{DynamicResource TextSecondaryBrush}">
+                                Go to Settings → Business Profile to set up your store name, address, phone, email, and GST/PAN number. Upload your logo for professional invoices. All details will appear on generated invoices and reports.
+                            </TextBlock>
+                        </Expander>
+
+                        <Expander Margin="0,0,0,8">
+                            <Expander.Header>
+                                <TextBlock Text="3. Adding Products" FontWeight="SemiBold"/>
+                            </Expander.Header>
+                            <TextBlock TextWrapping="Wrap" Margin="16,8" Foreground="{DynamicResource TextSecondaryBrush}">
+                                Navigate to Products → Add Product. Fill in the name, SKU, category, brand, purchase price, selling price, stock quantity, and minimum stock level. Products with stock below minimum will show in Dashboard alerts.
+                            </TextBlock>
+                        </Expander>
+
+                        <Expander Margin="0,0,0,8">
+                            <Expander.Header>
+                                <TextBlock Text="4. Creating Your First Invoice" FontWeight="SemiBold"/>
+                            </Expander.Header>
+                            <TextBlock TextWrapping="Wrap" Margin="16,8" Foreground="{DynamicResource TextSecondaryBrush}">
+                                Go to Billing → Search for products by name or SKU → Click to add to cart → Adjust quantities → Select customer (or use Walk-in) → Choose payment method → Click "Generate Invoice". Stock is automatically reduced.
+                            </TextBlock>
+                        </Expander>
+
+                        <Expander>
+                            <Expander.Header>
+                                <TextBlock Text="5. Viewing Reports" FontWeight="SemiBold"/>
+                            </Expander.Header>
+                            <TextBlock TextWrapping="Wrap" Margin="16,8" Foreground="{DynamicResource TextSecondaryBrush}">
+                                Navigate to Reports → Select a date range → Click "Generate Report". View summary stats, charts, and detailed tables. Export to PDF or Excel for record-keeping or sharing with your accountant.
+                            </TextBlock>
+                        </Expander>
                     </StackPanel>
                 </Border>
 
-                <!-- Shortcuts -->
+                <!-- Keyboard Shortcuts -->
                 <Border Style="{StaticResource PremiumCard}" Padding="24" Margin="0,0,0,24">
                     <StackPanel>
-                        <TextBlock Text="Keyboard Shortcuts" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
-                        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="Keyboard" Width="28" Height="28" 
+                                                      Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,12,0"/>
+                            <TextBlock Text="Keyboard Shortcuts" Style="{StaticResource H2Text}"/>
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding Shortcuts}" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column"
+                                  Background="Transparent" BorderThickness="0" GridLinesVisibility="None"
+                                  RowHeight="36">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                    <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+                                    <Setter Property="Height" Value="36"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                </Style>
+                            </DataGrid.Resources>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="ACTION" Binding="{Binding Action}" Width="*"/>
-                                <DataGridTextColumn Header="KEY" Binding="{Binding Key}" Width="100" FontWeight="Bold"/>
+                                <DataGridTemplateColumn Header="SHORTCUT" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4" Padding="8,2" Background="{DynamicResource Surface2Brush}" 
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Keys}" FontFamily="Consolas" FontSize="12" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="DESCRIPTION" Binding="{Binding Description}" Width="*"/>
+                                <DataGridTemplateColumn Header="CATEGORY" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="4" Padding="8,2" Background="{DynamicResource Surface2Brush}" 
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Category}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
-                            <!-- Hardcoded for now or bind to VM collection -->
-                            <x:Array Type="{x:Type vm:ShortcutItem}">
-                                <vm:ShortcutItem Action="New Invoice" Key="F2"/>
-                                <vm:ShortcutItem Action="Generate Invoice" Key="F9"/>
-                                <vm:ShortcutItem Action="Clear Cart" Key="Esc"/>
-                                <vm:ShortcutItem Action="Search Products" Key="Ctrl+F"/>
-                                <vm:ShortcutItem Action="Save" Key="Ctrl+S"/>
-                            </x:Array>
                         </DataGrid>
                     </StackPanel>
                 </Border>
 
-                <!-- FAQs -->
+                <!-- FAQ -->
                 <Border Style="{StaticResource PremiumCard}" Padding="24">
                     <StackPanel>
-                        <TextBlock Text="Frequently Asked Questions" Style="{StaticResource H2Text}" Margin="0,0,0,16"/>
-                        <Expander Header="How do I change the tax rate?" Margin="0,0,0,8">
-                            <TextBlock Text="Go to Settings > Business Profile to update GST/Tax settings." Margin="16,8"/>
-                        </Expander>
-                        <Expander Header="How to backup data?" Margin="0,0,0,8">
-                            <TextBlock Text="Go to Settings > Backup &amp; Data and click 'Backup Now'." Margin="16,8"/>
-                        </Expander>
-                        <Expander Header="Can I use without internet?">
-                            <TextBlock Text="Yes, the application works fully offline. AI features require internet." Margin="16,8"/>
-                        </Expander>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="FrequentlyAskedQuestions" Width="28" Height="28" 
+                                                      Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,12,0"/>
+                            <TextBlock Text="Frequently Asked Questions" Style="{StaticResource H2Text}"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Faqs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Expander Margin="0,0,0,8">
+                                        <Expander.Header>
+                                            <TextBlock Text="{Binding Question}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        </Expander.Header>
+                                        <TextBlock Text="{Binding Answer}" TextWrapping="Wrap" Margin="16,8" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" LineHeight="22"/>
+                                    </Expander>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Sidebar -->
+        <!-- Right Sidebar -->
         <StackPanel Grid.Column="2">
-            <Border Style="{StaticResource PremiumCard}" Padding="16" Margin="0,0,0,16">
+            <!-- App Info Card -->
+            <Border Style="{StaticResource PremiumCard}" Padding="20" Margin="0,0,0,16">
+                <StackPanel>
+                    <materialDesign:PackIcon Kind="StorefrontOutline" Width="40" Height="40" 
+                                              Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="NepalKhata" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="v2.0.0 · Sprint 2" Foreground="{DynamicResource TextSecondaryBrush}" 
+                               HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                    
+                    <Border Background="{DynamicResource Surface2Brush}" CornerRadius="8" Padding="12">
+                        <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Center">
+                            Built for hardware shops in Nepal. Manage your products, billing, customers, and reports — all in one place.
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Need Help Card -->
+            <Border Style="{StaticResource PremiumCard}" Padding="20" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="Need Support?" Style="{StaticResource H3Text}" Margin="0,0,0,12"/>
-                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="Contact Developer" Command="{Binding OpenLinkCommand}" CommandParameter="mailto:support@hardwareshop.pro" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
-                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="View Online Docs" Command="{Binding OpenLinkCommand}" CommandParameter="https://docs.hardwareshop.pro" HorizontalAlignment="Stretch"/>
+                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="📧 Email Support" 
+                            Command="{Binding OpenLinkCommand}" CommandParameter="mailto:support@nepalkhata.com" 
+                            HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="📖 Online Docs" 
+                            Command="{Binding OpenLinkCommand}" CommandParameter="https://docs.nepalkhata.com" 
+                            HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Quick Tips Card -->
+            <Border Style="{StaticResource PremiumCard}" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="💡 Quick Tips" Style="{StaticResource H3Text}" Margin="0,0,0,12"/>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8">
+                        • Use F2 to quickly jump to product search in Billing
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8">
+                        • Set minimum stock levels to get low-stock alerts on Dashboard
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8">
+                        • Enable Auto Backup in Settings for daily database protection
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}">
+                        • Use dark mode for better visibility in low-light environments
+                    </TextBlock>
                 </StackPanel>
             </Border>
         </StackPanel>

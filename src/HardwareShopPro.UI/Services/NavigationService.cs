@@ -21,10 +21,18 @@ public class NavigationService
     /// </summary>
     public async Task NavigateToAsync<TViewModel>() where TViewModel : ViewModels.ViewModelBase
     {
-        var vm = _viewModelFactory(typeof(TViewModel));
-        CurrentView = vm;
-        CurrentViewChanged?.Invoke(vm);
-        await vm.LoadAsync();
+        try
+        {
+            var vm = _viewModelFactory(typeof(TViewModel));
+            CurrentView = vm;
+            CurrentViewChanged?.Invoke(vm);
+            await vm.LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Failed to navigate to {ViewModel}", typeof(TViewModel).Name);
+            System.Windows.MessageBox.Show($"Error loading view: {ex.Message}", "Navigation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
     }
 
     /// <summary>
@@ -32,8 +40,16 @@ public class NavigationService
     /// </summary>
     public async Task NavigateToAsync(ViewModels.ViewModelBase viewModel)
     {
-        CurrentView = viewModel;
-        CurrentViewChanged?.Invoke(viewModel);
-        await viewModel.LoadAsync();
+        try
+        {
+            CurrentView = viewModel;
+            CurrentViewChanged?.Invoke(viewModel);
+            await viewModel.LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Failed to navigate to {ViewModel}", viewModel.GetType().Name);
+            System.Windows.MessageBox.Show($"Error loading view: {ex.Message}", "Navigation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
     }
 }

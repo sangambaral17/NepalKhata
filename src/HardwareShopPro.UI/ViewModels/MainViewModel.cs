@@ -7,6 +7,7 @@ using HardwareShopPro.Core.Models;
 using HardwareShopPro.Core.Services;
 using HardwareShopPro.UI.Services;
 using MaterialDesignThemes.Wpf;
+using MaterialDesignColors;
 using Serilog;
 
 namespace HardwareShopPro.UI.ViewModels;
@@ -18,21 +19,39 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly NavigationService _navigation;
     private readonly AuthenticationService _authService;
+    private readonly AppConfigService _configService;
     private static readonly ILogger Logger = Log.ForContext<MainViewModel>();
 
     [ObservableProperty] private ViewModelBase? _currentView;
     [ObservableProperty] private string _currentViewTitle = "Dashboard";
     [ObservableProperty] private User? _currentUser;
-    [ObservableProperty] private bool _isDarkTheme = false; // Default to light
+    [ObservableProperty] private bool _isDarkTheme = false;
+    [ObservableProperty] private int _accentColorIndex = 0;
     [ObservableProperty] private string _selectedMenuItem = "Dashboard";
 
     public event Action? LogoutRequested;
 
-    public MainViewModel(NavigationService navigation, AuthenticationService authService)
+    // Accent color definitions
+    private static readonly (string Name, Color Primary, Color Light)[] AccentColors = new[]
+    {
+        ("Indigo", (Color)ColorConverter.ConvertFromString("#4F46E5"), (Color)ColorConverter.ConvertFromString("#818CF8")),
+        ("Blue", (Color)ColorConverter.ConvertFromString("#2563EB"), (Color)ColorConverter.ConvertFromString("#60A5FA")),
+        ("Purple", (Color)ColorConverter.ConvertFromString("#7C3AED"), (Color)ColorConverter.ConvertFromString("#A78BFA")),
+        ("Teal", (Color)ColorConverter.ConvertFromString("#0D9488"), (Color)ColorConverter.ConvertFromString("#2DD4BF")),
+        ("Rose", (Color)ColorConverter.ConvertFromString("#E11D48"), (Color)ColorConverter.ConvertFromString("#FB7185")),
+        ("Amber", (Color)ColorConverter.ConvertFromString("#D97706"), (Color)ColorConverter.ConvertFromString("#FBBF24")),
+    };
+
+    public MainViewModel(NavigationService navigation, AuthenticationService authService, AppConfigService configService)
     {
         _navigation = navigation;
         _authService = authService;
+        _configService = configService;
         _currentUser = authService.CurrentUser;
+
+        // Load saved theme preference
+        _isDarkTheme = _configService.IsDarkTheme;
+        _accentColorIndex = _configService.AccentColorIndex;
 
         _navigation.CurrentViewChanged += vm =>
         {
@@ -44,6 +63,7 @@ public partial class MainViewModel : ViewModelBase
         WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) =>
         {
             IsDarkTheme = m.IsDarkTheme;
+            AccentColorIndex = m.AccentColorIndex;
             ApplyTheme();
         });
     }
@@ -101,6 +121,7 @@ public partial class MainViewModel : ViewModelBase
     private void ToggleTheme()
     {
         IsDarkTheme = !IsDarkTheme;
+        _configService.IsDarkTheme = IsDarkTheme;
         ApplyTheme();
     }
 
@@ -109,10 +130,21 @@ public partial class MainViewModel : ViewModelBase
         var paletteHelper = new PaletteHelper();
         var theme = paletteHelper.GetTheme();
         theme.SetBaseTheme(IsDarkTheme ? BaseTheme.Dark : BaseTheme.Light);
+
+        // Apply accent color
+        var colorIndex = Math.Clamp(AccentColorIndex, 0, AccentColors.Length - 1);
+        var accent = AccentColors[colorIndex];
+        theme.SetPrimaryColor(accent.Primary);
+
         paletteHelper.SetTheme(theme);
 
         // Apply custom ShopPro theme brushes
         var resources = Application.Current.Resources;
+
+        // Accent/Primary colors
+        resources["PrimaryBrush"] = new SolidColorBrush(accent.Primary);
+        resources["PrimaryLightBrush"] = new SolidColorBrush(accent.Light);
+        resources["AccentBrush"] = new SolidColorBrush(accent.Primary);
 
         if (IsDarkTheme)
         {

@@ -21,6 +21,20 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        // Global Exception Handling
+        AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+        {
+            var ex = (Exception)args.ExceptionObject;
+            Log.Fatal(ex, "AppDomain Unhandled Exception");
+            MessageBox.Show($"Fatal Error: {ex.Message}", "Crash", MessageBoxButton.OK, MessageBoxImage.Error);
+        };
+
+        TaskScheduler.UnobservedTaskException += (s, args) =>
+        {
+            Log.Fatal(args.Exception, "TaskScheduler Unobserved Exception");
+            args.SetObserved();
+        };
+
         base.OnStartup(e);
 
         // ─── Configuration ─────────────────────────────────────
@@ -56,9 +70,17 @@ public partial class App : Application
         services.AddSingleton<IUserRepository, UserRepository>();
         services.AddSingleton<IAuditLogRepository, AuditLogRepository>();
 
+        // App Config Service (persists settings to %AppData%)
+        var appConfigService = new AppConfigService();
+        services.AddSingleton(appConfigService);
+
+        // Store the DB path for backup/restore
+        services.AddSingleton(new DatabasePathInfo { FullPath = fullDbPath });
+
         // AI Service
-        var apiKey = config["AI:ApiKey"];
-        var model = config["AI:Model"] ?? "claude-sonnet-4-20250514";
+        var savedApiKey = appConfigService.GetApiKey();
+        var apiKey = !string.IsNullOrEmpty(savedApiKey) ? savedApiKey : config["AI:ApiKey"];
+        var model = appConfigService.AIModel ?? config["AI:Model"] ?? "claude-sonnet-4-20250514";
         var maxRetries = int.TryParse(config["AI:MaxRetries"], out var r) ? r : 3;
         services.AddSingleton<IAIService>(new ClaudeAIService(apiKey, model, maxRetries));
 
@@ -146,7 +168,14 @@ public partial class App : Application
     {
         Log.Information("HardwareShopPro shutting down.");
         Log.CloseAndFlush();
-        _serviceProvider?.Dispose();
+        (_serviceProvider as IDisposable)?.Dispose();
         base.OnExit(e);
+    }
+
+    private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+    {
+        Log.Fatal(e.Exception, "Dispatcher Unhandled Exception");
+        MessageBox.Show($"An unhandled error occurred: {e.Exception.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        e.Handled = true; // Prevent crash if possible
     }
 }

@@ -1,8 +1,13 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HardwareShopPro.Core.Interfaces;
 using HardwareShopPro.Core.Models;
+using HardwareShopPro.Core.Services;
+using HardwareShopPro.UI.Services;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using Serilog;
@@ -12,6 +17,7 @@ namespace HardwareShopPro.UI.ViewModels;
 public partial class ReportsViewModel : ViewModelBase
 {
     private readonly IInvoiceRepository _invoiceRepo;
+    private readonly AppConfigService _configService;
     private static readonly ILogger Logger = Log.ForContext<ReportsViewModel>();
 
     // ─── Filters ─────────────────────────────────────────────────────────
@@ -23,7 +29,7 @@ public partial class ReportsViewModel : ViewModelBase
     [ObservableProperty] private decimal _totalRevenue;
     [ObservableProperty] private int _totalInvoices;
     [ObservableProperty] private decimal _averageOrderValue;
-    [ObservableProperty] private int _totalItemsSold; // Estimated or fetched if possible
+    [ObservableProperty] private int _totalItemsSold;
 
     // ─── Data ────────────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<Invoice> _invoices = new();
@@ -34,9 +40,15 @@ public partial class ReportsViewModel : ViewModelBase
     [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
     [ObservableProperty] private ISeries[] _topProductsSeries = Array.Empty<ISeries>();
 
-    public ReportsViewModel(IInvoiceRepository invoiceRepo)
+    // ─── Export ──────────────────────────────────────────────────────────
+    [ObservableProperty] private bool _isExporting;
+    [ObservableProperty] private string _toastMessage = string.Empty;
+    [ObservableProperty] private bool _isToastVisible;
+
+    public ReportsViewModel(IInvoiceRepository invoiceRepo, AppConfigService configService)
     {
         _invoiceRepo = invoiceRepo;
+        _configService = configService;
     }
 
     public override async Task LoadAsync()
@@ -50,32 +62,18 @@ public partial class ReportsViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            // 1. Fetch Invoices
             var invoices = await _invoiceRepo.GetByDateRangeAsync(StartDate, EndDate);
             Invoices = new ObservableCollection<Invoice>(invoices);
 
-            // 2. Compute Summary Stats
             TotalRevenue = Invoices.Sum(i => i.TotalAmount);
             TotalInvoices = Invoices.Count;
             AverageOrderValue = TotalInvoices > 0 ? TotalRevenue / TotalInvoices : 0;
-            
-            // Note: TotalItemsSold requires fetching items or extending repository. 
-            // Leveraging TopProducts for partial count or just skipping expensive calculation for now.
-            // But we do need it for the card. 
-            // Let's use TopProducts to get at least top 5 count or add another repo method.
-            // For now, leave as 0 or approximate if data unavailable.
-            // Actually, GetTopSellingProductsAsync(count: 1000) could give us a good estimate if needed
-            // but that's heavy. Let's just create a quick aggregaton on memory if invoices list is small, 
-            // but Invoices list from repo doesn't have Items. 
-            // So we'll skip accurate TotalItemsSold or add another query.
-            // I'll stick to 0 or "N/A" logic for now to avoid blocking.
 
-            // 3. Fetch Top Products
             var topProducts = await _invoiceRepo.GetTopSellingProductsAsync(StartDate, EndDate, 5);
             TopProducts = new ObservableCollection<ProductSalesReport>(topProducts);
-            TotalItemsSold = TopProducts.Sum(p => p.TotalQuantity); // Only for top 5, but better than 0.
+            TotalItemsSold = TopProducts.Sum(p => p.TotalQuantity);
 
-            // 4. Update Revenue Chart (Group by Date)
+            // Revenue Chart (daily)
             var dailyRevenue = Invoices
                 .GroupBy(i => i.Date.Date)
                 .OrderBy(g => g.Key)
@@ -99,7 +97,7 @@ public partial class ReportsViewModel : ViewModelBase
                 }
             };
 
-            // 5. Update Top Products Chart
+            // Top Products pie chart
             TopProductsSeries = topProducts.Select(p => new PieSeries<decimal>
             {
                 Name = p.ProductName,
@@ -144,5 +142,83 @@ public partial class ReportsViewModel : ViewModelBase
                 break;
         }
         LoadReportCommand.Execute(null);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // EXPORT
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [RelayCommand]
+    private async Task ExportPdf()
+    {
+        if (Invoices.Count == 0) { ErrorMessage = "No data to export. Generate a report first."; return; }
+
+        IsExporting = true;
+        try
+        {
+            var outputDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "NepalKhata", "Reports");
+            var businessName = _configService.BusinessProfile?.Name ?? "NepalKhata";
+
+            var filePath = await Task.Run(() => ReportExportService.ExportSalesReportPdf(
+                SelectedReportType, StartDate, EndDate,
+                TotalRevenue, TotalInvoices, AverageOrderValue,
+                Invoices, TopProducts, businessName, outputDir));
+
+            ShowToast($"PDF exported successfully!");
+
+            // Open file
+            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "PDF export failed");
+            ErrorMessage = $"Export failed: {ex.Message}";
+        }
+        finally
+        {
+            IsExporting = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        if (Invoices.Count == 0) { ErrorMessage = "No data to export. Generate a report first."; return; }
+
+        IsExporting = true;
+        try
+        {
+            var outputDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "NepalKhata", "Reports");
+            var businessName = _configService.BusinessProfile?.Name ?? "NepalKhata";
+
+            var filePath = await Task.Run(() => ReportExportService.ExportSalesReportExcel(
+                SelectedReportType, StartDate, EndDate,
+                TotalRevenue, TotalInvoices, AverageOrderValue,
+                Invoices, TopProducts, businessName, outputDir));
+
+            ShowToast($"Excel exported successfully!");
+
+            // Open file
+            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Excel export failed");
+            ErrorMessage = $"Export failed: {ex.Message}";
+        }
+        finally
+        {
+            IsExporting = false;
+        }
+    }
+
+    private async void ShowToast(string message)
+    {
+        ToastMessage = message;
+        IsToastVisible = true;
+        await Task.Delay(3000);
+        IsToastVisible = false;
     }
 }
